@@ -1,3 +1,4 @@
+
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/utils/file.hpp>
@@ -35,7 +36,7 @@ protected:
         creditos->setScale(0.7f);
         this->addChild(creditos);
 
-        // Boton X de Geometry Dash
+        // Boton X
         auto cerrarSprite = CCSprite::createWithSpriteFrameName(
             "GJ_closeBtn_001.png"
         );
@@ -93,12 +94,19 @@ protected:
             this->addChild(tarjeta);
 
             int rank = nivel["rank"].asInt().unwrapOr(0);
-            std::string nombre = nivel["name"].asString().unwrapOr("Sin nombre");
-            std::string creador = nivel["creator"].asString().unwrapOr("Desconocido");
+
+            std::string nombre =
+                nivel["name"].asString().unwrapOr("Sin nombre");
+
+            std::string creador =
+                nivel["creator"].asString().unwrapOr("Desconocido");
+
             std::string id = std::to_string(
                 nivel["id"].asInt().unwrapOr(0)
             );
-            std::string verificador = nivel["verifier"].asString().unwrapOr("Desconocido");
+
+            std::string verificador =
+                nivel["verifier"].asString().unwrapOr("Desconocido");
 
             auto nombreLabel = CCLabelBMFont::create(
                 (std::to_string(rank) + ". " + nombre).c_str(),
@@ -157,7 +165,17 @@ public:
     }
 };
 
-class $modify(MenuLayer) {
+// Boton de WeonList en el menu principal
+class $modify(WeonListMenuLayer, MenuLayer) {
+    void onWeonList(CCObject*) {
+        auto escena = CCScene::create();
+        escena->addChild(WeonListLayer::create());
+
+        CCDirector::sharedDirector()->pushScene(
+            CCTransitionFade::create(0.3f, escena)
+        );
+    }
+
     bool init() {
         if (!MenuLayer::init()) return false;
 
@@ -167,7 +185,7 @@ class $modify(MenuLayer) {
         auto boton = CCMenuItemSpriteExtra::create(
             sprite,
             this,
-            menu_selector(MenuLayer::onWeonList)
+            menu_selector(WeonListMenuLayer::onWeonList)
         );
 
         auto menu = this->getChildByID("bottom-menu");
@@ -178,14 +196,5 @@ class $modify(MenuLayer) {
         }
 
         return true;
-    }
-
-    void onWeonList(CCObject*) {
-        auto escena = CCScene::create();
-        escena->addChild(WeonListLayer::create());
-
-        CCDirector::sharedDirector()->pushScene(
-            CCTransitionFade::create(0.3f, escena)
-        );
     }
 };
