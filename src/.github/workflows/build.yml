@@ -1,26 +1,26 @@
-name: WeonList Android Build
+name: Build WeonList
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - "**"
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargar repositorio
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compilar WeonList para Android
+      - name: Build Geode mod
         uses: geode-sdk/build-geode-mod@main
         with:
           target: Android64
 
-      - name: Guardar archivo compilado
+      - name: Upload compiled mod
         uses: actions/upload-artifact@v4
         with:
           name: WeonList-Android
-          path: output/*.geode
+          path: build/*.geode
