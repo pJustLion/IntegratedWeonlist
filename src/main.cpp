@@ -2,12 +2,16 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/utils/file.hpp>
+#include <Geode/utils/clipboard.hpp>
 #include <matjson.hpp>
+#include <unordered_map>
 
 using namespace geode::prelude;
 
 class WeonListLayer : public CCLayer {
 protected:
+    std::unordered_map<int, std::string> m_levelIDs;
+
     bool init() {
         if (!CCLayer::init()) return false;
 
@@ -69,6 +73,7 @@ protected:
         }
 
         float y = winSize.height - 105;
+        int index = 0;
 
         for (auto const& nivel : niveles) {
             auto tarjeta = CCLayerColor::create(
@@ -93,6 +98,8 @@ protected:
             std::string verificador =
                 nivel["verifier"].asString().unwrapOr("Desconocido");
 
+            m_levelIDs[index] = id;
+
             auto nombreLabel = CCLabelBMFont::create(
                 (std::to_string(rank) + ". " + nombre).c_str(),
                 "bigFont.fnt"
@@ -114,6 +121,23 @@ protected:
             info->setScale(0.45f);
             tarjeta->addChild(info);
 
+            auto copiarLabel = CCLabelBMFont::create(
+                "Copiar ID", "goldFont.fnt"
+            );
+
+            auto copiarBoton = CCMenuItemLabel::create(
+                copiarLabel, this,
+                menu_selector(WeonListLayer::onCopyID)
+            );
+
+            copiarBoton->setTag(index);
+
+            auto copiarMenu = CCMenu::createWithItem(copiarBoton);
+            copiarMenu->setPosition({
+                tarjeta->getContentSize().width - 48, 25
+            });
+            tarjeta->addChild(copiarMenu, 5);
+
             auto verificadorLabel = CCLabelBMFont::create(
                 ("Verificado por: " + verificador).c_str(),
                 "chatFont.fnt"
@@ -126,6 +150,7 @@ protected:
             tarjeta->addChild(verificadorLabel);
 
             y -= 75;
+            index++;
         }
 
         return true;
@@ -134,6 +159,17 @@ protected:
 public:
     void onClose(CCObject*) {
         CCDirector::sharedDirector()->popScene();
+    }
+
+    void onCopyID(CCObject* sender) {
+        auto boton = static_cast<CCNode*>(sender);
+        int index = boton->getTag();
+
+        auto it = m_levelIDs.find(index);
+
+        if (it != m_levelIDs.end()) {
+            utils::clipboard::write(it->second);
+        }
     }
 
     static WeonListLayer* create() {
@@ -165,7 +201,6 @@ class $modify(WeonListMenuLayer, MenuLayer) {
         auto sprite = CCSprite::create("WL-Boton-lmao.png"_spr);
         if (!sprite) return true;
 
-        // TAMANO DEL BOTON
         sprite->setScale(2.0f);
 
         auto boton = CCMenuItemSpriteExtra::create(
