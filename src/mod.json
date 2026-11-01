@@ -12,10 +12,11 @@
     "geode.node-ids": ">=v1.23.3"
   },
   "resources": {
-  "sprites": [
-    "resources/WL-Boton-lmao.png"
-  ],
-  "files": [
-    "resources/levels.json"
-  ]
+    "sprites": [
+      "resources/WL-Boton-lmao.png"
+    ],
+    "files": [
+      "resources/levels.json"
+    ]
+  }
 }
