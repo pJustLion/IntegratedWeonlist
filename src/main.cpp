@@ -1,6 +1,7 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
+#include <Geode/ui/ScrollLayer.hpp>
 #include <Geode/utils/file.hpp>
 #include <matjson.hpp>
 #include <unordered_map>
@@ -19,11 +20,13 @@ protected:
         auto fondo = CCLayerColor::create({0, 0, 0, 255});
         this->addChild(fondo, -1);
 
+        // Titulo
         auto titulo = CCLabelBMFont::create("WEONLIST", "bigFont.fnt");
         titulo->setPosition({winSize.width / 2, winSize.height - 35});
         titulo->setScale(0.8f);
         this->addChild(titulo);
 
+        // Creditos
         auto creditos = CCLabelBMFont::create(
             "Creado por: pJustLion", "chatFont.fnt"
         );
@@ -32,6 +35,7 @@ protected:
         creditos->setScale(0.7f);
         this->addChild(creditos);
 
+        // Boton cerrar
         auto cerrarSprite = CCSprite::createWithSpriteFrameName(
             "GJ_closeBtn_001.png"
         );
@@ -49,6 +53,7 @@ protected:
             this->addChild(menuCerrar, 10);
         }
 
+        // Leer JSON
         auto ruta = Mod::get()->getResourcesDir() / "levels.json";
         auto datos = file::readString(ruta);
 
@@ -71,17 +76,30 @@ protected:
             return true;
         }
 
-        float y = winSize.height - 105;
+        // Crear scroll
+        auto scroll = ScrollLayer::create({
+            winSize.width - 50,
+            winSize.height - 145
+        });
+
+        if (!scroll) return true;
+
+        scroll->setPosition({25, 35});
+        this->addChild(scroll);
+
+        int totalNiveles = static_cast<int>(niveles.size());
+        float alturaTarjeta = 65.0f;
+        float separacion = 10.0f;
+        float alturaTotal = totalNiveles * (alturaTarjeta + separacion);
+
+        scroll->m_contentLayer->setContentSize({
+            scroll->getContentWidth(),
+            alturaTotal
+        });
+
         int index = 0;
 
         for (auto const& nivel : niveles) {
-            auto tarjeta = CCLayerColor::create(
-                {10, 10, 10, 255}, winSize.width - 50, 65
-            );
-
-            tarjeta->setPosition({25, y - 65});
-            this->addChild(tarjeta);
-
             int rank = nivel["rank"].asInt().unwrapOr(0);
 
             std::string nombre =
@@ -99,6 +117,20 @@ protected:
 
             m_levelIDs[index] = id;
 
+            // Tarjeta
+            auto tarjeta = CCLayerColor::create(
+                {10, 10, 10, 255},
+                scroll->getContentWidth(),
+                alturaTarjeta
+            );
+
+            float y = alturaTotal -
+                ((index + 1) * (alturaTarjeta + separacion));
+
+            tarjeta->setPosition({0, y});
+            scroll->m_contentLayer->addChild(tarjeta);
+
+            // Nombre
             auto nombreLabel = CCLabelBMFont::create(
                 (std::to_string(rank) + ". " + nombre).c_str(),
                 "bigFont.fnt"
@@ -109,6 +141,7 @@ protected:
             nombreLabel->setScale(0.45f);
             tarjeta->addChild(nombreLabel);
 
+            // Informacion
             auto info = CCLabelBMFont::create(
                 ("Creado por: " + creador + " | ID: " + id).c_str(),
                 "chatFont.fnt"
@@ -117,12 +150,15 @@ protected:
             info->setColor({119, 119, 119});
             info->setAnchorPoint({0, 0.5f});
             info->setPosition({12, 25});
-            info->setScale(0.45f);
+            info->setScale(0.38f);
             tarjeta->addChild(info);
 
+            // Boton copiar ID
             auto copiarLabel = CCLabelBMFont::create(
                 "Copiar ID", "goldFont.fnt"
             );
+
+            copiarLabel->setScale(0.75f);
 
             auto copiarBoton = CCMenuItemLabel::create(
                 copiarLabel, this,
@@ -133,10 +169,13 @@ protected:
 
             auto copiarMenu = CCMenu::createWithItem(copiarBoton);
             copiarMenu->setPosition({
-                tarjeta->getContentSize().width - 48, 25
+                tarjeta->getContentSize().width - 58,
+                25
             });
+
             tarjeta->addChild(copiarMenu, 5);
 
+            // Verificador
             auto verificadorLabel = CCLabelBMFont::create(
                 ("Verificado por: " + verificador).c_str(),
                 "chatFont.fnt"
@@ -148,7 +187,6 @@ protected:
             verificadorLabel->setScale(0.4f);
             tarjeta->addChild(verificadorLabel);
 
-            y -= 75;
             index++;
         }
 
