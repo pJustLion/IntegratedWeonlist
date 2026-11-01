@@ -1,21 +1,26 @@
+
 {
+  "levels": [
+    {
       "rank": 1,
       "name": "Log09",
       "creator": "Zorryfant508",
       "id": 149555463,
-      "verifier": "Zorryfant508",
+      "verifier": "Zorryfant508"
     },
     {
       "rank": 2,
       "name": "Furnace Demoled",
       "creator": "PotatoMClol",
       "id": 147783227,
-      "verifier": "solisxx",
+      "verifier": "solisxx"
     },
     {
       "rank": 3,
       "name": "Etuieukalbakorp",
       "creator": "lenzi7o",
       "id": 149557651,
-      "verifier": "lenzi7o",
-    },
+      "verifier": "lenzi7o"
+    }
+  ]
+}
