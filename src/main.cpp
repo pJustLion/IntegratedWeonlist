@@ -166,7 +166,7 @@ class $modify(WeonListMenuLayer, MenuLayer) {
         if (!sprite) return true;
 
         // TAMANO DEL BOTON
-        sprite->setScale(1.8f);
+        sprite->setScale(2.0f);
 
         auto boton = CCMenuItemSpriteExtra::create(
             sprite, this,
