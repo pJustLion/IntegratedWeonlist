@@ -17,21 +17,35 @@ protected:
 
         auto winSize = CCDirector::sharedDirector()->getWinSize();
 
+        // Fondo
         auto fondo = CCLayerColor::create({0, 0, 0, 255});
         this->addChild(fondo, -1);
 
-        // Titulo
+        // Titulo animado
         auto titulo = CCLabelBMFont::create("WEONLIST", "bigFont.fnt");
-        titulo->setPosition({winSize.width / 2, winSize.height - 35});
-        titulo->setScale(0.8f);
+        titulo->setPosition({
+            winSize.width / 2,
+            winSize.height - 35
+        });
+        titulo->setScale(0.2f);
+        titulo->setOpacity(0);
         this->addChild(titulo);
+
+        titulo->runAction(CCSpawn::create(
+            CCEaseBackOut::create(CCScaleTo::create(0.45f, 0.8f)),
+            CCFadeTo::create(0.35f, 255),
+            nullptr
+        ));
 
         // Creditos
         auto creditos = CCLabelBMFont::create(
             "Creado por: pJustLion", "chatFont.fnt"
         );
         creditos->setColor({119, 119, 119});
-        creditos->setPosition({winSize.width / 2, winSize.height - 58});
+        creditos->setPosition({
+            winSize.width / 2,
+            winSize.height - 58
+        });
         creditos->setScale(0.7f);
         this->addChild(creditos);
 
@@ -48,7 +62,8 @@ protected:
 
             auto menuCerrar = CCMenu::createWithItem(cerrarBoton);
             menuCerrar->setPosition({
-                winSize.width - 25, winSize.height - 25
+                winSize.width - 25,
+                winSize.height - 25
             });
             this->addChild(menuCerrar, 10);
         }
@@ -76,7 +91,7 @@ protected:
             return true;
         }
 
-        // Crear scroll
+        // Scroll
         auto scroll = ScrollLayer::create({
             winSize.width - 50,
             winSize.height - 145
@@ -88,9 +103,12 @@ protected:
         this->addChild(scroll);
 
         int totalNiveles = static_cast<int>(niveles.size());
-        float alturaTarjeta = 65.0f;
-        float separacion = 10.0f;
-        float alturaTotal = totalNiveles * (alturaTarjeta + separacion);
+
+        // Tarjetas mas compactas
+        float alturaTarjeta = 58.0f;
+        float separacion = 8.0f;
+        float alturaTotal = totalNiveles *
+            (alturaTarjeta + separacion);
 
         scroll->m_contentLayer->setContentSize({
             scroll->getContentWidth(),
@@ -127,8 +145,26 @@ protected:
             float y = alturaTotal -
                 ((index + 1) * (alturaTarjeta + separacion));
 
-            tarjeta->setPosition({0, y});
+            tarjeta->setPosition({-35, y});
+            tarjeta->setOpacity(0);
             scroll->m_contentLayer->addChild(tarjeta);
+
+            // Animacion escalonada de tarjetas
+            auto movimiento = CCEaseBackOut::create(
+                CCMoveTo::create(0.38f, {0, y})
+            );
+
+            auto aparicion = CCFadeTo::create(0.28f, 255);
+
+            tarjeta->runAction(CCSequence::create(
+                CCDelayTime::create(index * 0.055f),
+                CCSpawn::create(
+                    movimiento,
+                    aparicion,
+                    nullptr
+                ),
+                nullptr
+            ));
 
             // Nombre
             auto nombreLabel = CCLabelBMFont::create(
@@ -137,7 +173,7 @@ protected:
             );
 
             nombreLabel->setAnchorPoint({0, 0.5f});
-            nombreLabel->setPosition({12, 45});
+            nombreLabel->setPosition({12, 43});
             nombreLabel->setScale(0.45f);
             tarjeta->addChild(nombreLabel);
 
@@ -150,7 +186,7 @@ protected:
             info->setColor({119, 119, 119});
             info->setAnchorPoint({0, 0.5f});
             info->setPosition({12, 25});
-            info->setScale(0.38f);
+            info->setScale(0.34f);
             tarjeta->addChild(info);
 
             // Boton copiar ID
@@ -158,10 +194,11 @@ protected:
                 "Copiar ID", "goldFont.fnt"
             );
 
-            copiarLabel->setScale(0.75f);
+            copiarLabel->setScale(0.68f);
 
             auto copiarBoton = CCMenuItemLabel::create(
-                copiarLabel, this,
+                copiarLabel,
+                this,
                 menu_selector(WeonListLayer::onCopyID)
             );
 
@@ -169,7 +206,7 @@ protected:
 
             auto copiarMenu = CCMenu::createWithItem(copiarBoton);
             copiarMenu->setPosition({
-                tarjeta->getContentSize().width - 58,
+                tarjeta->getContentSize().width - 52,
                 25
             });
 
@@ -184,7 +221,7 @@ protected:
             verificadorLabel->setColor({119, 119, 119});
             verificadorLabel->setAnchorPoint({0, 0.5f});
             verificadorLabel->setPosition({12, 9});
-            verificadorLabel->setScale(0.4f);
+            verificadorLabel->setScale(0.36f);
             tarjeta->addChild(verificadorLabel);
 
             index++;
@@ -200,6 +237,17 @@ public:
 
     void onCopyID(CCObject* sender) {
         auto boton = static_cast<CCNode*>(sender);
+
+        // Animacion del boton
+        boton->stopAllActions();
+        boton->setScale(1.0f);
+
+        boton->runAction(CCSequence::create(
+            CCScaleTo::create(0.07f, 0.85f),
+            CCScaleTo::create(0.12f, 1.0f),
+            nullptr
+        ));
+
         int index = boton->getTag();
 
         auto it = m_levelIDs.find(index);
@@ -247,7 +295,8 @@ class $modify(WeonListMenuLayer, MenuLayer) {
         sprite->setScale(2.0f);
 
         auto boton = CCMenuItemSpriteExtra::create(
-            sprite, this,
+            sprite,
+            this,
             menu_selector(WeonListMenuLayer::onWeonList)
         );
 
