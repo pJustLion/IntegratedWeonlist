@@ -2,7 +2,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/utils/file.hpp>
-#include <Geode/utils/clipboard.hpp>
 #include <matjson.hpp>
 #include <unordered_map>
 
@@ -168,7 +167,13 @@ public:
         auto it = m_levelIDs.find(index);
 
         if (it != m_levelIDs.end()) {
-            utils::clipboard::write(it->second);
+            if (utils::clipboard::write(it->second)) {
+                FLAlertLayer::create(
+                    "WeonList",
+                    "ID copiado al portapapeles!",
+                    "OK"
+                )->show();
+            }
         }
     }
 
