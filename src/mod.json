@@ -7,5 +7,13 @@
   "name": "WeonList integrada",
   "version": "v1.0.0",
   "developer": "pJustLion",
-  "description": "porfin hay un put0 mod de la Weonlist integrada para GD xD"
+  "description": "porfin hay un put0 mod de la Weonlist integrada para GD xD",
+  "dependencies": {
+    "geode.node-ids": ">=v1.23.3"
+  },
+  "resources": {
+    "sprites": [
+      "resources/WL-Boton-lmao.png"
+    ]
+  }
 }
