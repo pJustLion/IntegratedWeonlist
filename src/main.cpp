@@ -1,3 +1,4 @@
+
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
@@ -8,11 +9,22 @@ class $modify(MenuLayer) {
             return false;
         }
 
+        auto sprite = CCSprite::create(
+            "WL-Boton-lmao.png"_spr
+        );
+
+        if (!sprite) {
+            log::error("No se pudo cargar el boton de WeonList");
+            return true;
+        }
+
         auto boton = CCMenuItemSpriteExtra::create(
-            CCSprite::createWithSpriteFrameName("GJ_listBtn_001.png"),
+            sprite,
             this,
             menu_selector(MenuLayer::onWeonList)
         );
+
+        boton->setScale(0.8f);
 
         auto menu = this->getChildByID("bottom-menu");
 
@@ -26,8 +38,8 @@ class $modify(MenuLayer) {
 
     void onWeonList(CCObject*) {
         FLAlertLayer::create(
-            "Weonlist",
-            "ola y bienvenido a la weonlist",
+            "WeonList",
+            "ola y bienvenido a la WeonList",
             "Cerrar"
         )->show();
     }
