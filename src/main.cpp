@@ -13,52 +13,39 @@ protected:
 
         auto winSize = CCDirector::sharedDirector()->getWinSize();
 
-        // Fondo negro
         auto fondo = CCLayerColor::create({0, 0, 0, 255});
         this->addChild(fondo, -1);
 
-        // Titulo
-        auto titulo = CCLabelBMFont::create(
-            "WEONLIST",
-            "bigFont.fnt"
-        );
+        auto titulo = CCLabelBMFont::create("WEONLIST", "bigFont.fnt");
         titulo->setPosition({winSize.width / 2, winSize.height - 35});
         titulo->setScale(0.8f);
         this->addChild(titulo);
 
-        // Creditos
         auto creditos = CCLabelBMFont::create(
-            "Creado por: pJustLion",
-            "chatFont.fnt"
+            "Creado por: pJustLion", "chatFont.fnt"
         );
         creditos->setColor({119, 119, 119});
         creditos->setPosition({winSize.width / 2, winSize.height - 58});
         creditos->setScale(0.7f);
         this->addChild(creditos);
 
-        // Boton X
         auto cerrarSprite = CCSprite::createWithSpriteFrameName(
             "GJ_closeBtn_001.png"
         );
 
         if (cerrarSprite) {
             auto cerrarBoton = CCMenuItemSpriteExtra::create(
-                cerrarSprite,
-                this,
+                cerrarSprite, this,
                 menu_selector(WeonListLayer::onClose)
             );
 
             auto menuCerrar = CCMenu::createWithItem(cerrarBoton);
-
             menuCerrar->setPosition({
-                winSize.width - 25,
-                winSize.height - 25
+                winSize.width - 25, winSize.height - 25
             });
-
             this->addChild(menuCerrar, 10);
         }
 
-        // Cargar niveles
         auto ruta = Mod::get()->getResourcesDir() / "levels.json";
         auto datos = file::readString(ruta);
 
@@ -85,9 +72,7 @@ protected:
 
         for (auto const& nivel : niveles) {
             auto tarjeta = CCLayerColor::create(
-                {10, 10, 10, 255},
-                winSize.width - 50,
-                65
+                {10, 10, 10, 255}, winSize.width - 50, 65
             );
 
             tarjeta->setPosition({25, y - 65});
@@ -147,7 +132,6 @@ protected:
     }
 
 public:
-    // Cerrar WeonList
     void onClose(CCObject*) {
         CCDirector::sharedDirector()->popScene();
     }
@@ -165,7 +149,6 @@ public:
     }
 };
 
-// Boton de WeonList en el menu principal
 class $modify(WeonListMenuLayer, MenuLayer) {
     void onWeonList(CCObject*) {
         auto escena = CCScene::create();
@@ -182,9 +165,11 @@ class $modify(WeonListMenuLayer, MenuLayer) {
         auto sprite = CCSprite::create("WL-Boton-lmao.png"_spr);
         if (!sprite) return true;
 
+        // TAMANO DEL BOTON
+        sprite->setScale(1.8f);
+
         auto boton = CCMenuItemSpriteExtra::create(
-            sprite,
-            this,
+            sprite, this,
             menu_selector(WeonListMenuLayer::onWeonList)
         );
 
