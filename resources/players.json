@@ -1,0 +1,153 @@
+{
+  "players": [
+    {
+      "name": "solisxx",
+      "country": "Perú",
+      "points": 1851,
+      "rank": 1,
+      "completed": [],
+      "verified": [
+        "Furnace Demoled",
+        "solisxx redux",
+        "weon note"
+      ]
+    },
+    {
+      "name": "Zorryfant508",
+      "country": "Chile",
+      "points": 1000,
+      "rank": 2,
+      "completed": [],
+      "verified": [
+        "Log09"
+      ]
+    },
+    {
+      "name": "Stacmin",
+      "country": "Perú",
+      "points": 925,
+      "rank": 3,
+      "completed": [
+        {
+          "level": "Furnace Demoled",
+          "record": "100%"
+        },
+        {
+          "level": "Beauty Of Chaos",
+          "record": "100%"
+        }
+      ],
+      "verified": []
+    },
+    {
+      "name": "Lauka",
+      "country": "Argentina",
+      "points": 825,
+      "rank": 4,
+      "completed": [
+        {
+          "level": "Furnace Demoled",
+          "record": "100%"
+        }
+      ],
+      "verified": []
+    },
+    {
+      "name": "lenzi7o",
+      "country": "Unknown",
+      "points": 681,
+      "rank": 5,
+      "completed": [],
+      "verified": [
+        "Etuieukalbakorp"
+      ]
+    },
+    {
+      "name": "CubeMat14",
+      "country": "Perú",
+      "points": 560,
+      "rank": 6,
+      "completed": [
+        {
+          "level": "MX NEVER CLEAR",
+          "record": "100%"
+        }
+      ],
+      "verified": [
+        "Wild Side"
+      ]
+    },
+    {
+      "name": "Escuad",
+      "country": "Unknown",
+      "points": 531,
+      "rank": 7,
+      "completed": [],
+      "verified": [
+        "i love u",
+        "Weon Be Like"
+      ]
+    },
+    {
+      "name": "matheo",
+      "country": "Colombia",
+      "points": 482,
+      "rank": 8,
+      "completed": [
+        {
+          "level": "For the first Time",
+          "record": "100%"
+        },
+        {
+          "level": "Beauty Of Chaos",
+          "record": "100%"
+        }
+      ],
+      "verified": [
+        "Weon Adventures"
+      ]
+    },
+    {
+      "name": "Smosheey",
+      "country": "Canada",
+      "points": 398,
+      "rank": 9,
+      "completed": [
+        {
+          "level": "Wild Side",
+          "record": "100%"
+        },
+        {
+          "level": "For the first Time",
+          "record": "100%"
+        },
+        {
+          "level": "Beauty Of Chaos",
+          "record": "100%"
+        }
+      ],
+      "verified": []
+    },
+    {
+      "name": "Tafuko",
+      "country": "Chile",
+      "points": 398,
+      "rank": 10,
+      "completed": [
+        {
+          "level": "Wild Side",
+          "record": "100%"
+        },
+        {
+          "level": "For the first Time",
+          "record": "100%"
+        },
+        {
+          "level": "Beauty Of Chaos",
+          "record": "100%"
+        }
+      ],
+      "verified": []
+    }
+  ]
+}
