@@ -1,185 +1,271 @@
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/ui/ScrollLayer.hpp>
 #include <Geode/utils/file.hpp>
 #include <matjson.hpp>
 #include <unordered_map>
+#include <vector>
+#include <string>
+#include <algorithm>
 
 using namespace geode::prelude;
 
 class WeonListLayer : public CCLayer {
 protected:
+    struct Player {
+        std::string name;
+        std::string country;
+        int points = 0;
+        int rank = 0;
+        matjson::Value completed;
+        matjson::Value verified;
+    };
+
     std::unordered_map<int, std::string> m_levelIDs;
+    std::vector<Player> m_players;
+
+    CCNode* m_content = nullptr;
+    CCMenu* m_tabs = nullptr;
+
+    int m_currentTab = 0;
 
     bool init() {
         if (!CCLayer::init()) return false;
 
-        auto winSize = CCDirector::sharedDirector()->getWinSize();
+        auto win = CCDirector::sharedDirector()->getWinSize();
 
-        // Fondo
-        auto fondo = CCLayerColor::create({0, 0, 0, 255});
-        this->addChild(fondo, -1);
+        auto bg = CCLayerColor::create({0, 0, 0, 255});
+        addChild(bg, -1);
 
-        // Titulo animado
-        auto titulo = CCLabelBMFont::create("WEONLIST", "bigFont.fnt");
-        titulo->setPosition({
-            winSize.width / 2,
-            winSize.height - 35
-        });
-        titulo->setScale(0.2f);
-        titulo->setOpacity(0);
-        this->addChild(titulo);
+        auto title = CCLabelBMFont::create("WEONLIST", "bigFont.fnt");
+        title->setPosition({win.width / 2, win.height - 35});
+        title->setScale(0.8f);
+        title->setOpacity(0);
+        addChild(title);
 
-        titulo->runAction(CCSpawn::create(
+        title->runAction(CCSpawn::create(
             CCEaseBackOut::create(CCScaleTo::create(0.45f, 0.8f)),
             CCFadeTo::create(0.35f, 255),
             nullptr
         ));
 
-        // Creditos
-        auto creditos = CCLabelBMFont::create(
+        auto credits = CCLabelBMFont::create(
             "Creado por: pJustLion", "chatFont.fnt"
         );
-        creditos->setColor({119, 119, 119});
-        creditos->setPosition({
-            winSize.width / 2,
-            winSize.height - 58
-        });
-        creditos->setScale(0.7f);
-        this->addChild(creditos);
+        credits->setColor({119, 119, 119});
+        credits->setPosition({win.width / 2, win.height - 58});
+        credits->setScale(0.7f);
+        addChild(credits);
 
-        // Boton cerrar
-        auto cerrarSprite = CCSprite::createWithSpriteFrameName(
+        auto closeSprite = CCSprite::createWithSpriteFrameName(
             "GJ_closeBtn_001.png"
         );
 
-        if (cerrarSprite) {
-            auto cerrarBoton = CCMenuItemSpriteExtra::create(
-                cerrarSprite, this,
+        if (closeSprite) {
+            auto closeBtn = CCMenuItemSpriteExtra::create(
+                closeSprite, this,
                 menu_selector(WeonListLayer::onClose)
             );
 
-            auto menuCerrar = CCMenu::createWithItem(cerrarBoton);
-            menuCerrar->setPosition({
-                winSize.width - 25,
-                winSize.height - 25
-            });
-            this->addChild(menuCerrar, 10);
+            auto closeMenu = CCMenu::createWithItem(closeBtn);
+            closeMenu->setPosition({win.width - 25, win.height - 25});
+            addChild(closeMenu, 10);
         }
 
-        // Leer JSON
-        auto ruta = Mod::get()->getResourcesDir() / "levels.json";
-        auto datos = file::readString(ruta);
+        loadPlayers();
 
-        if (!datos) {
+        createTabs();
+        showLevels();
+
+        return true;
+    }
+
+    void createTabs() {
+        auto win = CCDirector::sharedDirector()->getWinSize();
+
+        auto levelsLabel = CCLabelBMFont::create(
+            "LEVELS", "goldFont.fnt"
+        );
+
+        auto playersLabel = CCLabelBMFont::create(
+            "LEADERBOARD", "goldFont.fnt"
+        );
+
+        levelsLabel->setScale(0.65f);
+        playersLabel->setScale(0.65f);
+
+        auto levelsBtn = CCMenuItemLabel::create(
+            levelsLabel, this,
+            menu_selector(WeonListLayer::onLevels)
+        );
+
+        auto playersBtn = CCMenuItemLabel::create(
+            playersLabel, this,
+            menu_selector(WeonListLayer::onLeaderboard)
+        );
+
+        m_tabs = CCMenu::create(levelsBtn, playersBtn, nullptr);
+        m_tabs->alignItemsHorizontallyWithPadding(35);
+        m_tabs->setPosition({win.width / 2, win.height - 88});
+
+        addChild(m_tabs, 5);
+    }
+
+    void clearContent() {
+        if (m_content) {
+            m_content->removeFromParentAndCleanup(true);
+            m_content = nullptr;
+        }
+    }
+
+    void loadPlayers() {
+        auto path = Mod::get()->getResourcesDir() / "players.json";
+        auto data = file::readString(path);
+
+        if (!data) {
+            log::error("No se pudo leer players.json");
+            return;
+        }
+
+        auto parsed = matjson::parse(data.unwrap());
+
+        if (!parsed) {
+            log::error("Error leyendo players.json");
+            return;
+        }
+
+        auto players = parsed.unwrap()["players"];
+
+        if (!players.isArray()) {
+            log::error("La lista de jugadores no es un array");
+            return;
+        }
+
+        for (auto const& item : players) {
+            Player player;
+
+            player.name = item["name"].asString().unwrapOr("Unknown");
+            player.country = item["country"].asString().unwrapOr("Unknown");
+            player.points = item["points"].asInt().unwrapOr(0);
+            player.rank = item["rank"].asInt().unwrapOr(0);
+            player.completed = item["completed"];
+            player.verified = item["verified"];
+
+            m_players.push_back(player);
+        }
+
+        std::sort(m_players.begin(), m_players.end(),
+            [](Player const& a, Player const& b) {
+                return a.rank < b.rank;
+            }
+        );
+    }
+
+    void showLevels() {
+        m_currentTab = 0;
+        clearContent();
+        m_levelIDs.clear();
+
+        auto win = CCDirector::sharedDirector()->getWinSize();
+
+        auto path = Mod::get()->getResourcesDir() / "levels.json";
+        auto data = file::readString(path);
+
+        if (!data) {
             log::error("No se pudo leer levels.json");
-            return true;
+            return;
         }
 
-        auto json = matjson::parse(datos.unwrap());
+        auto parsed = matjson::parse(data.unwrap());
 
-        if (!json) {
-            log::error("Error leyendo JSON de WeonList");
-            return true;
+        if (!parsed) {
+            log::error("Error leyendo levels.json");
+            return;
         }
 
-        auto niveles = json.unwrap()["levels"];
+        auto levels = parsed.unwrap()["levels"];
 
-        if (!niveles.isArray()) {
-            log::error("La lista de niveles no es un array");
-            return true;
-        }
+        if (!levels.isArray()) return;
 
-        // Scroll
         auto scroll = ScrollLayer::create({
-            winSize.width - 50,
-            winSize.height - 145
+            win.width - 50,
+            win.height - 155
         });
 
-        if (!scroll) return true;
+        if (!scroll) return;
 
-        scroll->setPosition({25, 35});
-        this->addChild(scroll);
+        scroll->setPosition({25, 30});
+        addChild(scroll);
 
-        int totalNiveles = static_cast<int>(niveles.size());
+        m_content = scroll;
 
-        // Tarjetas mas compactas
-        float alturaTarjeta = 58.0f;
-        float separacion = 8.0f;
-        float alturaTotal = totalNiveles *
-            (alturaTarjeta + separacion);
+        int total = static_cast<int>(levels.size());
+        float cardHeight = 58.0f;
+        float gap = 8.0f;
+        float totalHeight = total * (cardHeight + gap);
 
         scroll->m_contentLayer->setContentSize({
             scroll->getContentWidth(),
-            alturaTotal
+            totalHeight
         });
 
         int index = 0;
 
-        for (auto const& nivel : niveles) {
-            int rank = nivel["rank"].asInt().unwrapOr(0);
+        for (auto const& level : levels) {
+            int rank = level["rank"].asInt().unwrapOr(0);
 
-            std::string nombre =
-                nivel["name"].asString().unwrapOr("Sin nombre");
+            std::string name =
+                level["name"].asString().unwrapOr("Sin nombre");
 
-            std::string creador =
-                nivel["creator"].asString().unwrapOr("Desconocido");
+            std::string creator =
+                level["creator"].asString().unwrapOr("Desconocido");
 
             std::string id = std::to_string(
-                nivel["id"].asInt().unwrapOr(0)
+                level["id"].asInt().unwrapOr(0)
             );
 
-            std::string verificador =
-                nivel["verifier"].asString().unwrapOr("Desconocido");
+            std::string verifier =
+                level["verifier"].asString().unwrapOr("Desconocido");
 
             m_levelIDs[index] = id;
 
-            // Tarjeta
-            auto tarjeta = CCLayerColor::create(
+            auto card = CCLayerColor::create(
                 {10, 10, 10, 255},
                 scroll->getContentWidth(),
-                alturaTarjeta
+                cardHeight
             );
 
-            float y = alturaTotal -
-                ((index + 1) * (alturaTarjeta + separacion));
+            float y = totalHeight -
+                ((index + 1) * (cardHeight + gap));
 
-            tarjeta->setPosition({-35, y});
-            tarjeta->setOpacity(0);
-            scroll->m_contentLayer->addChild(tarjeta);
+            card->setPosition({-35, y});
+            card->setOpacity(0);
+            scroll->m_contentLayer->addChild(card);
 
-            // Animacion escalonada de tarjetas
-            auto movimiento = CCEaseBackOut::create(
-                CCMoveTo::create(0.38f, {0, y})
-            );
-
-            auto aparicion = CCFadeTo::create(0.28f, 255);
-
-            tarjeta->runAction(CCSequence::create(
+            card->runAction(CCSequence::create(
                 CCDelayTime::create(index * 0.055f),
                 CCSpawn::create(
-                    movimiento,
-                    aparicion,
+                    CCEaseBackOut::create(
+                        CCMoveTo::create(0.38f, {0, y})
+                    ),
+                    CCFadeTo::create(0.28f, 255),
                     nullptr
                 ),
                 nullptr
             ));
 
-            // Nombre
-            auto nombreLabel = CCLabelBMFont::create(
-                (std::to_string(rank) + ". " + nombre).c_str(),
+            auto nameLabel = CCLabelBMFont::create(
+                (std::to_string(rank) + ". " + name).c_str(),
                 "bigFont.fnt"
             );
 
-            nombreLabel->setAnchorPoint({0, 0.5f});
-            nombreLabel->setPosition({12, 43});
-            nombreLabel->setScale(0.45f);
-            tarjeta->addChild(nombreLabel);
+            nameLabel->setAnchorPoint({0, 0.5f});
+            nameLabel->setPosition({12, 43});
+            nameLabel->setScale(0.45f);
+            card->addChild(nameLabel);
 
-            // Informacion
             auto info = CCLabelBMFont::create(
-                ("Creado por: " + creador + " | ID: " + id).c_str(),
+                ("Creado por: " + creator + " | ID: " + id).c_str(),
                 "chatFont.fnt"
             );
 
@@ -187,47 +273,245 @@ protected:
             info->setAnchorPoint({0, 0.5f});
             info->setPosition({12, 25});
             info->setScale(0.34f);
-            tarjeta->addChild(info);
+            card->addChild(info);
 
-            // Boton copiar ID
-            auto copiarLabel = CCLabelBMFont::create(
+            auto copyLabel = CCLabelBMFont::create(
                 "Copiar ID", "goldFont.fnt"
             );
 
-            copiarLabel->setScale(0.68f);
+            copyLabel->setScale(0.68f);
 
-            auto copiarBoton = CCMenuItemLabel::create(
-                copiarLabel,
-                this,
+            auto copyBtn = CCMenuItemLabel::create(
+                copyLabel, this,
                 menu_selector(WeonListLayer::onCopyID)
             );
 
-            copiarBoton->setTag(index);
+            copyBtn->setTag(index);
 
-            auto copiarMenu = CCMenu::createWithItem(copiarBoton);
-            copiarMenu->setPosition({
-                tarjeta->getContentSize().width - 52,
-                25
+            auto copyMenu = CCMenu::createWithItem(copyBtn);
+            copyMenu->setPosition({
+                card->getContentSize().width - 52, 25
             });
 
-            tarjeta->addChild(copiarMenu, 5);
+            card->addChild(copyMenu, 5);
 
-            // Verificador
-            auto verificadorLabel = CCLabelBMFont::create(
-                ("Verificado por: " + verificador).c_str(),
+            auto verifierLabel = CCLabelBMFont::create(
+                ("Verificado por: " + verifier).c_str(),
                 "chatFont.fnt"
             );
 
-            verificadorLabel->setColor({119, 119, 119});
-            verificadorLabel->setAnchorPoint({0, 0.5f});
-            verificadorLabel->setPosition({12, 9});
-            verificadorLabel->setScale(0.36f);
-            tarjeta->addChild(verificadorLabel);
+            verifierLabel->setColor({119, 119, 119});
+            verifierLabel->setAnchorPoint({0, 0.5f});
+            verifierLabel->setPosition({12, 9});
+            verifierLabel->setScale(0.36f);
+            card->addChild(verifierLabel);
 
             index++;
         }
+    }
 
-        return true;
+    void showLeaderboard() {
+        m_currentTab = 1;
+        clearContent();
+
+        auto win = CCDirector::sharedDirector()->getWinSize();
+
+        auto scroll = ScrollLayer::create({
+            win.width - 50,
+            win.height - 155
+        });
+
+        if (!scroll) return;
+
+        scroll->setPosition({25, 30});
+        addChild(scroll);
+
+        m_content = scroll;
+
+        float cardHeight = 48.0f;
+        float gap = 7.0f;
+        float totalHeight = m_players.size() * (cardHeight + gap);
+
+        scroll->m_contentLayer->setContentSize({
+            scroll->getContentWidth(),
+            totalHeight
+        });
+
+        int index = 0;
+
+        for (auto const& player : m_players) {
+            auto card = CCLayerColor::create(
+                {12, 12, 12, 255},
+                scroll->getContentWidth(),
+                cardHeight
+            );
+
+            float y = totalHeight -
+                ((index + 1) * (cardHeight + gap));
+
+            card->setPosition({0, y});
+            scroll->m_contentLayer->addChild(card);
+
+            auto name = CCLabelBMFont::create(
+                (std::to_string(player.rank) + ". " +
+                 player.name).c_str(),
+                "bigFont.fnt"
+            );
+
+            name->setAnchorPoint({0, 0.5f});
+            name->setPosition({12, 30});
+            name->setScale(0.48f);
+            card->addChild(name);
+
+            auto points = CCLabelBMFont::create(
+                (std::to_string(player.points) + " points").c_str(),
+                "goldFont.fnt"
+            );
+
+            points->setAnchorPoint({1, 0.5f});
+            points->setPosition({
+                card->getContentSize().width - 12, 24
+            });
+            points->setScale(0.55f);
+            card->addChild(points);
+
+            auto openLabel = CCLabelBMFont::create(
+                "VER PERFIL", "chatFont.fnt"
+            );
+
+            openLabel->setScale(0.42f);
+
+            auto openBtn = CCMenuItemLabel::create(
+                openLabel, this,
+                menu_selector(WeonListLayer::onOpenPlayer)
+            );
+
+            openBtn->setTag(index);
+
+            auto menu = CCMenu::createWithItem(openBtn);
+            menu->setPosition({
+                card->getContentSize().width - 55, 9
+            });
+
+            card->addChild(menu, 5);
+
+            index++;
+        }
+    }
+
+    void showPlayerProfile(int index) {
+        if (index < 0 || index >= static_cast<int>(m_players.size()))
+            return;
+
+        auto const& player = m_players[index];
+
+        clearContent();
+
+        auto win = CCDirector::sharedDirector()->getWinSize();
+
+        auto profile = CCLayerColor::create(
+            {10, 10, 10, 255},
+            win.width - 50,
+            win.height - 155
+        );
+
+        profile->setPosition({25, 30});
+        addChild(profile);
+
+        m_content = profile;
+
+        auto addText = [&](std::string const& text, float y,
+                           float scale, ccColor3B color) {
+            auto label = CCLabelBMFont::create(
+                text.c_str(), "chatFont.fnt"
+            );
+
+            label->setAnchorPoint({0, 0.5f});
+            label->setPosition({15, y});
+            label->setScale(scale);
+            label->setColor(color);
+            profile->addChild(label);
+        };
+
+        addText("PLAYER PROFILE", win.height - 185, 0.65f,
+                {255, 210, 80});
+
+        addText("Rank: #" + std::to_string(player.rank),
+                win.height - 220, 0.55f, {255, 255, 255});
+
+        addText("Player: " + player.name,
+                win.height - 245, 0.55f, {255, 255, 255});
+
+        addText("Country: " + player.country,
+                win.height - 270, 0.55f, {255, 255, 255});
+
+        addText("Points: " + std::to_string(player.points),
+                win.height - 295, 0.55f, {255, 210, 80});
+
+        float y = win.height - 335;
+
+        addText("COMPLETED LEVELS", y, 0.55f,
+                {100, 220, 255});
+
+        y -= 22;
+
+        if (player.completed.isArray()) {
+            for (auto const& item : player.completed) {
+                std::string level;
+                std::string record;
+
+                if (item.isObject()) {
+                    level = item["level"].asString().unwrapOr("Unknown");
+                    record = item["record"].asString().unwrapOr("");
+                } else {
+                    level = item.asString().unwrapOr("Unknown");
+                }
+
+                addText(
+                    "- " + level +
+                    (record.empty() ? "" : " (" + record + ")"),
+                    y, 0.42f, {200, 200, 200}
+                );
+
+                y -= 19;
+            }
+        }
+
+        y -= 8;
+
+        addText("VERIFIED LEVELS", y, 0.55f,
+                {100, 220, 255});
+
+        y -= 22;
+
+        if (player.verified.isArray()) {
+            for (auto const& item : player.verified) {
+                std::string level = item.asString().unwrapOr("Unknown");
+
+                addText("- " + level, y, 0.42f,
+                        {200, 200, 200});
+
+                y -= 19;
+            }
+        }
+
+        auto backLabel = CCLabelBMFont::create(
+            "BACK", "goldFont.fnt"
+        );
+
+        backLabel->setScale(0.65f);
+
+        auto backBtn = CCMenuItemLabel::create(
+            backLabel, this,
+            menu_selector(WeonListLayer::onBackProfile)
+        );
+
+        auto backMenu = CCMenu::createWithItem(backBtn);
+        backMenu->setPosition({
+            win.width / 2, 48
+        });
+
+        addChild(backMenu, 10);
     }
 
 public:
@@ -235,21 +519,36 @@ public:
         CCDirector::sharedDirector()->popScene();
     }
 
+    void onLevels(CCObject*) {
+        showLevels();
+    }
+
+    void onLeaderboard(CCObject*) {
+        showLeaderboard();
+    }
+
+    void onOpenPlayer(CCObject* sender) {
+        auto node = static_cast<CCNode*>(sender);
+        showPlayerProfile(node->getTag());
+    }
+
+    void onBackProfile(CCObject*) {
+        showLeaderboard();
+    }
+
     void onCopyID(CCObject* sender) {
-        auto boton = static_cast<CCNode*>(sender);
+        auto button = static_cast<CCNode*>(sender);
 
-        // Animacion del boton
-        boton->stopAllActions();
-        boton->setScale(1.0f);
+        button->stopAllActions();
+        button->setScale(1.0f);
 
-        boton->runAction(CCSequence::create(
+        button->runAction(CCSequence::create(
             CCScaleTo::create(0.07f, 0.85f),
             CCScaleTo::create(0.12f, 1.0f),
             nullptr
         ));
 
-        int index = boton->getTag();
-
+        int index = button->getTag();
         auto it = m_levelIDs.find(index);
 
         if (it != m_levelIDs.end()) {
@@ -278,11 +577,11 @@ public:
 
 class $modify(WeonListMenuLayer, MenuLayer) {
     void onWeonList(CCObject*) {
-        auto escena = CCScene::create();
-        escena->addChild(WeonListLayer::create());
+        auto scene = CCScene::create();
+        scene->addChild(WeonListLayer::create());
 
         CCDirector::sharedDirector()->pushScene(
-            CCTransitionFade::create(0.3f, escena)
+            CCTransitionFade::create(0.3f, scene)
         );
     }
 
@@ -294,16 +593,15 @@ class $modify(WeonListMenuLayer, MenuLayer) {
 
         sprite->setScale(2.0f);
 
-        auto boton = CCMenuItemSpriteExtra::create(
-            sprite,
-            this,
+        auto button = CCMenuItemSpriteExtra::create(
+            sprite, this,
             menu_selector(WeonListMenuLayer::onWeonList)
         );
 
         auto menu = this->getChildByID("bottom-menu");
 
         if (menu) {
-            menu->addChild(boton);
+            menu->addChild(button);
             menu->updateLayout();
         }
 
