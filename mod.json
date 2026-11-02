@@ -16,7 +16,8 @@
       "resources/WL-Boton-lmao.png"
     ],
     "files": [
-      "resources/levels.json"
+      "resources/levels.json",
+      "resources/players.json"
     ]
   }
 }
