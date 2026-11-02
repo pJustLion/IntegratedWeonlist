@@ -772,8 +772,8 @@ class $modify(WeonListMenuLayer, MenuLayer) {
             return true;
         }
 
-        // The source image is 1280x1280; keep its on-screen size compact.
-        sprite->setScale(0.045f);
+        // The source image is 1280x1280; enlarge it for a more visible menu button.
+        sprite->setScale(0.12f);
 
         auto button = CCMenuItemSpriteExtra::create(
             sprite, this,
