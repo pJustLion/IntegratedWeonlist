@@ -284,11 +284,15 @@ protected:
 
         for (auto const& level : levels) {
             int rank = level["rank"].asInt().unwrapOr(0);
+
             std::string name =
                 level["name"].asString().unwrapOr("Sin nombre");
+
             std::string creator =
                 level["creator"].asString().unwrapOr("Desconocido");
+
             int id = level["id"].asInt().unwrapOr(0);
+
             std::string verifier =
                 level["verifier"].asString().unwrapOr("Desconocido");
 
@@ -305,6 +309,7 @@ protected:
             content->addChild(card);
 
             ccColor3B rankColor = WHITE;
+
             if (rank == 1) rankColor = LIGHT_GOLD;
             else if (rank == 2) rankColor = {190, 195, 205};
             else if (rank == 3) rankColor = {190, 125, 75};
@@ -315,6 +320,7 @@ protected:
                 0.65f,
                 rankColor
             );
+
             rankLabel->setAnchorPoint({0, 0.5f});
             rankLabel->setPosition({12, cardHeight / 2});
             card->addChild(rankLabel);
@@ -325,6 +331,7 @@ protected:
                 0.48f,
                 WHITE
             );
+
             nameLabel->setAnchorPoint({0, 0.5f});
             nameLabel->setPosition({65, 48});
             card->addChild(nameLabel);
@@ -335,6 +342,7 @@ protected:
                 0.48f,
                 GRAY
             );
+
             creatorLabel->setAnchorPoint({0, 0.5f});
             creatorLabel->setPosition({65, 27});
             card->addChild(creatorLabel);
@@ -345,6 +353,7 @@ protected:
                 0.42f,
                 CYAN
             );
+
             verifierLabel->setAnchorPoint({0, 0.5f});
             verifierLabel->setPosition({65, 10});
             card->addChild(verifierLabel);
@@ -355,6 +364,7 @@ protected:
                 0.43f,
                 GRAY
             );
+
             idLabel->setAnchorPoint({1, 0.5f});
             idLabel->setPosition({
                 card->getContentSize().width - 12,
@@ -407,6 +417,7 @@ protected:
 
         float cardHeight = 65;
         float gap = 9;
+
         float contentHeight =
             m_players.size() * (cardHeight + gap) + 10;
 
@@ -430,6 +441,7 @@ protected:
             content->addChild(card);
 
             ccColor3B rankColor = WHITE;
+
             if (player.rank == 1) rankColor = LIGHT_GOLD;
             else if (player.rank == 2) rankColor = {190, 195, 205};
             else if (player.rank == 3) rankColor = {190, 125, 75};
@@ -440,6 +452,7 @@ protected:
                 0.65f,
                 rankColor
             );
+
             rankLabel->setAnchorPoint({0, 0.5f});
             rankLabel->setPosition({12, cardHeight / 2});
             card->addChild(rankLabel);
@@ -450,6 +463,7 @@ protected:
                 0.52f,
                 WHITE
             );
+
             nameLabel->setAnchorPoint({0, 0.5f});
             nameLabel->setPosition({65, 42});
             card->addChild(nameLabel);
@@ -460,6 +474,7 @@ protected:
                 0.5f,
                 GOLD
             );
+
             pointsLabel->setAnchorPoint({0, 0.5f});
             pointsLabel->setPosition({65, 18});
             card->addChild(pointsLabel);
@@ -533,6 +548,7 @@ protected:
             0.7f,
             LIGHT_GOLD
         );
+
         profileTitle->setPosition({
             width / 2,
             contentHeight - 25
@@ -545,6 +561,7 @@ protected:
             0.65f,
             GOLD
         );
+
         rankLabel->setPosition({
             width / 2,
             contentHeight - 60
@@ -557,6 +574,7 @@ protected:
             0.75f,
             WHITE
         );
+
         nameLabel->setPosition({
             width / 2,
             contentHeight - 95
@@ -569,6 +587,7 @@ protected:
             0.55f,
             GRAY
         );
+
         countryLabel->setPosition({
             width / 2,
             contentHeight - 125
@@ -581,6 +600,7 @@ protected:
             0.58f,
             GOLD
         );
+
         pointsLabel->setPosition({
             width / 2,
             contentHeight - 155
@@ -595,6 +615,7 @@ protected:
             0.55f,
             LIGHT_GOLD
         );
+
         completedTitle->setAnchorPoint({0, 0.5f});
         completedTitle->setPosition({15, y});
         content->addChild(completedTitle);
@@ -615,6 +636,7 @@ protected:
                     0.48f,
                     WHITE
                 );
+
                 label->setAnchorPoint({0, 0.5f});
                 label->setPosition({20, y});
                 content->addChild(label);
@@ -631,6 +653,7 @@ protected:
             0.55f,
             LIGHT_GOLD
         );
+
         verifiedTitle->setAnchorPoint({0, 0.5f});
         verifiedTitle->setPosition({15, y});
         content->addChild(verifiedTitle);
@@ -648,6 +671,7 @@ protected:
                     0.48f,
                     CYAN
                 );
+
                 label->setAnchorPoint({0, 0.5f});
                 label->setPosition({20, y});
                 content->addChild(label);
@@ -725,29 +749,23 @@ public:
     }
 };
 
-class WeonListMenuLayer : public CCNode {
-public:
+class $modify(WeonListMenuLayer, MenuLayer) {
     void onWeonList(CCObject*) {
         auto layer = WeonListLayer::create();
+        if (!layer) return;
 
-        if (layer) {
-            auto scene = CCScene::create();
-            scene->addChild(layer);
-            CCDirector::sharedDirector()->pushScene(
-                CCTransitionFade::create(0.3f, scene)
-            );
-        }
+        auto scene = CCScene::create();
+        scene->addChild(layer);
+
+        CCDirector::sharedDirector()->pushScene(
+            CCTransitionFade::create(0.3f, scene)
+        );
     }
-};
 
-class $modify(WeonListMenuLayer, MenuLayer) {
     bool init() {
         if (!MenuLayer::init()) return false;
 
-        auto sprite = CCSprite::create(
-            "WL-Boton-lmao.png"
-        );
-
+        auto sprite = CCSprite::create("WL-Boton-lmao.png"_spr);
         if (!sprite) return true;
 
         sprite->setScale(2.0f);
