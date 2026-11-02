@@ -1,4 +1,3 @@
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/ui/ScrollLayer.hpp>
@@ -46,7 +45,6 @@ protected:
         auto bg = CCLayerColor::create({5, 5, 7, 255});
         addChild(bg, -10);
 
-        // Decoración superior
         auto topLine = CCLayerColor::create(
             {GOLD.r, GOLD.g, GOLD.b, 255},
             win.width, 2
@@ -152,8 +150,14 @@ protected:
         }
     }
 
-    void addAccent(CCNode* parent, float x, float y,
-                   float width, float height, ccColor3B color) {
+    void addAccent(
+        CCNode* parent,
+        float x,
+        float y,
+        float width,
+        float height,
+        ccColor3B color
+    ) {
         auto accent = CCLayerColor::create(
             {color.r, color.g, color.b, 255},
             width, height
@@ -266,103 +270,503 @@ protected:
         m_content = scroll;
 
         int total = static_cast<int>(levels.size());
-        float cardHeight = 64.0f;
-        float gap = 8.0f;
-        float totalHeight = total * (cardHeight + gap);
+        float cardHeight = 72;
+        float gap = 9;
+        float contentHeight = total * (cardHeight + gap) + 10;
 
-        totalHeight = std::max(
-            totalHeight, win.height - 155
-        );
-
-        scroll->m_contentLayer->setContentSize({
-            scroll->getContentWidth(), totalHeight
+        auto content = scroll->m_contentLayer;
+        content->setContentSize({
+            win.width - 50,
+            contentHeight
         });
 
         int index = 0;
 
         for (auto const& level : levels) {
             int rank = level["rank"].asInt().unwrapOr(0);
-
             std::string name =
                 level["name"].asString().unwrapOr("Sin nombre");
-
             std::string creator =
                 level["creator"].asString().unwrapOr("Desconocido");
-
-            std::string id = std::to_string(
-                level["id"].asInt().unwrapOr(0)
-            );
-
+            int id = level["id"].asInt().unwrapOr(0);
             std::string verifier =
                 level["verifier"].asString().unwrapOr("Desconocido");
 
-            m_levelIDs[index] = id;
+            m_levelIDs[id] = name;
 
             auto card = CCLayerColor::create(
-                {15, 15, 18, 255},
-                scroll->getContentWidth() - 4,
+                {20, 20, 24, 255},
+                win.width - 70,
                 cardHeight
             );
 
-            float y = totalHeight -
-                ((index + 1) * (cardHeight + gap));
-
-            card->setPosition({-28, y});
-            card->setOpacity(0);
-            scroll->m_contentLayer->addChild(card);
-
-            card->runAction(CCSequence::create(
-                CCDelayTime::create(index * 0.035f),
-                CCSpawn::create(
-                    CCEaseBackOut::create(
-                        CCMoveTo::create(0.35f, {0, y})
-                    ),
-                    CCFadeTo::create(0.25f, 255),
-                    nullptr
-                ),
-                nullptr
-            ));
+            float y = contentHeight - (index + 1) * (cardHeight + gap);
+            card->setPosition({10, y});
+            content->addChild(card);
 
             ccColor3B rankColor = WHITE;
-
             if (rank == 1) rankColor = LIGHT_GOLD;
-            else if (rank == 2) rankColor = {190, 200, 215};
-            else if (rank == 3) rankColor = {205, 145, 95};
-
-            addAccent(card, 0, 0, 3, cardHeight, rankColor);
+            else if (rank == 2) rankColor = {190, 195, 205};
+            else if (rank == 3) rankColor = {190, 125, 75};
 
             auto rankLabel = makeLabel(
                 "#" + std::to_string(rank),
-                "goldFont.fnt", 0.55f, rankColor
+                "goldFont.fnt",
+                0.65f,
+                rankColor
             );
             rankLabel->setAnchorPoint({0, 0.5f});
-            rankLabel->setPosition({12, 43});
+            rankLabel->setPosition({12, cardHeight / 2});
             card->addChild(rankLabel);
 
             auto nameLabel = makeLabel(
-                name, "bigFont.fnt", 0.43f, WHITE
+                name,
+                "bigFont.fnt",
+                0.48f,
+                WHITE
             );
             nameLabel->setAnchorPoint({0, 0.5f});
-            nameLabel->setPosition({48, 43});
+            nameLabel->setPosition({65, 48});
             card->addChild(nameLabel);
 
-            auto info = makeLabel(
-                "CREADOR: " + creator,
-                "chatFont.fnt", 0.36f, GRAY
+            auto creatorLabel = makeLabel(
+                "Creado por: " + creator,
+                "chatFont.fnt",
+                0.48f,
+                GRAY
             );
-            info->setAnchorPoint({0, 0.5f});
-            info->setPosition({12, 23});
-            card->addChild(info);
+            creatorLabel->setAnchorPoint({0, 0.5f});
+            creatorLabel->setPosition({65, 27});
+            card->addChild(creatorLabel);
 
             auto verifierLabel = makeLabel(
-                "VERIFICADO POR: " + verifier,
-                "chatFont.fnt", 0.34f, GRAY
+                "Verificado por: " + verifier,
+                "chatFont.fnt",
+                0.42f,
+                CYAN
             );
             verifierLabel->setAnchorPoint({0, 0.5f});
-            verifierLabel->setPosition({12, 8});
+            verifierLabel->setPosition({65, 10});
             card->addChild(verifierLabel);
 
+            auto idLabel = makeLabel(
+                "ID: " + std::to_string(id),
+                "chatFont.fnt",
+                0.43f,
+                GRAY
+            );
+            idLabel->setAnchorPoint({1, 0.5f});
+            idLabel->setPosition({
+                card->getContentSize().width - 12,
+                49
+            });
+            card->addChild(idLabel);
+
             auto copyLabel = makeLabel(
+                "COPIAR ID",
+                "goldFont.fnt",
+                0.48f,
+                GOLD
+            );
+
+            auto copyBtn = CCMenuItemLabel::create(
+                copyLabel, this,
+                menu_selector(WeonListLayer::onCopyID)
+            );
+
+            copyBtn->setTag(id);
+
+            auto copyMenu = CCMenu::createWithItem(copyBtn);
+            copyMenu->setPosition({
+                card->getContentSize().width - 55,
+                20
+            });
+
+            card->addChild(copyMenu, 5);
+
+            index++;
+        }
+    }
+
+    void showLeaderboard() {
+        m_currentTab = 1;
+        clearContent();
+
+        auto win = CCDirector::sharedDirector()->getWinSize();
+
+        auto scroll = ScrollLayer::create({
+            win.width - 50,
+            win.height - 155
+        });
+
+        if (!scroll) return;
+
+        scroll->setPosition({25, 30});
+        addChild(scroll, 1);
+        m_content = scroll;
+
+        float cardHeight = 65;
+        float gap = 9;
+        float contentHeight =
+            m_players.size() * (cardHeight + gap) + 10;
+
+        auto content = scroll->m_contentLayer;
+        content->setContentSize({
+            win.width - 50,
+            contentHeight
+        });
+
+        int index = 0;
+
+        for (auto const& player : m_players) {
+            auto card = CCLayerColor::create(
+                {20, 20, 24, 255},
+                win.width - 70,
+                cardHeight
+            );
+
+            float y = contentHeight - (index + 1) * (cardHeight + gap);
+            card->setPosition({10, y});
+            content->addChild(card);
+
+            ccColor3B rankColor = WHITE;
+            if (player.rank == 1) rankColor = LIGHT_GOLD;
+            else if (player.rank == 2) rankColor = {190, 195, 205};
+            else if (player.rank == 3) rankColor = {190, 125, 75};
+
+            auto rankLabel = makeLabel(
+                "#" + std::to_string(player.rank),
+                "goldFont.fnt",
+                0.65f,
+                rankColor
+            );
+            rankLabel->setAnchorPoint({0, 0.5f});
+            rankLabel->setPosition({12, cardHeight / 2});
+            card->addChild(rankLabel);
+
+            auto nameLabel = makeLabel(
+                player.name,
+                "bigFont.fnt",
+                0.52f,
+                WHITE
+            );
+            nameLabel->setAnchorPoint({0, 0.5f});
+            nameLabel->setPosition({65, 42});
+            card->addChild(nameLabel);
+
+            auto pointsLabel = makeLabel(
+                std::to_string(player.points) + " puntos",
+                "chatFont.fnt",
+                0.5f,
+                GOLD
+            );
+            pointsLabel->setAnchorPoint({0, 0.5f});
+            pointsLabel->setPosition({65, 18});
+            card->addChild(pointsLabel);
+
+            auto profileLabel = makeLabel(
+                "VER PERFIL",
+                "goldFont.fnt",
+                0.48f,
+                CYAN
+            );
+
+            auto profileBtn = CCMenuItemLabel::create(
+                profileLabel, this,
+                menu_selector(WeonListLayer::onViewProfile)
+            );
+
+            profileBtn->setTag(index);
+
+            auto profileMenu = CCMenu::createWithItem(profileBtn);
+            profileMenu->setPosition({
+                card->getContentSize().width - 60,
+                cardHeight / 2
+            });
+
+            card->addChild(profileMenu, 5);
+
+            index++;
+        }
+    }
+
+    void showPlayerProfile(int playerIndex) {
+        if (playerIndex < 0 ||
+            playerIndex >= static_cast<int>(m_players.size())) {
+            return;
+        }
+
+        clearContent();
+
+        auto win = CCDirector::sharedDirector()->getWinSize();
+        auto const& player = m_players[playerIndex];
+
+        auto scroll = ScrollLayer::create({
+            win.width - 50,
+            win.height - 190
+        });
+
+        if (!scroll) return;
+
+        scroll->setPosition({25, 65});
+        addChild(scroll, 1);
+        m_content = scroll;
+
+        float width = win.width - 50;
+        float y = 0;
+
+        int completedCount = player.completed.isArray()
+            ? static_cast<int>(player.completed.size()) : 0;
+
+        int verifiedCount = player.verified.isArray()
+            ? static_cast<int>(player.verified.size()) : 0;
+
+        float contentHeight =
+            190 + completedCount * 30 + verifiedCount * 30;
+
+        auto content = scroll->m_contentLayer;
+        content->setContentSize({width, contentHeight});
+
+        auto profileTitle = makeLabel(
+            "PERFIL DEL JUGADOR",
+            "goldFont.fnt",
+            0.7f,
+            LIGHT_GOLD
+        );
+        profileTitle->setPosition({
+            width / 2,
+            contentHeight - 25
+        });
+        content->addChild(profileTitle);
+
+        auto rankLabel = makeLabel(
+            "Puesto #" + std::to_string(player.rank),
+            "bigFont.fnt",
+            0.65f,
+            GOLD
+        );
+        rankLabel->setPosition({
+            width / 2,
+            contentHeight - 60
+        });
+        content->addChild(rankLabel);
+
+        auto nameLabel = makeLabel(
+            player.name,
+            "bigFont.fnt",
+            0.75f,
+            WHITE
+        );
+        nameLabel->setPosition({
+            width / 2,
+            contentHeight - 95
+        });
+        content->addChild(nameLabel);
+
+        auto countryLabel = makeLabel(
+            "Pais: " + player.country,
+            "chatFont.fnt",
+            0.55f,
+            GRAY
+        );
+        countryLabel->setPosition({
+            width / 2,
+            contentHeight - 125
+        });
+        content->addChild(countryLabel);
+
+        auto pointsLabel = makeLabel(
+            "Puntos: " + std::to_string(player.points),
+            "goldFont.fnt",
+            0.58f,
+            GOLD
+        );
+        pointsLabel->setPosition({
+            width / 2,
+            contentHeight - 155
+        });
+        content->addChild(pointsLabel);
+
+        y = contentHeight - 195;
+
+        auto completedTitle = makeLabel(
+            "NIVELES COMPLETADOS",
+            "goldFont.fnt",
+            0.55f,
+            LIGHT_GOLD
+        );
+        completedTitle->setAnchorPoint({0, 0.5f});
+        completedTitle->setPosition({15, y});
+        content->addChild(completedTitle);
+
+        y -= 30;
+
+        if (player.completed.isArray()) {
+            for (auto const& item : player.completed) {
+                std::string level =
+                    item["level"].asString().unwrapOr("Desconocido");
+
+                std::string record =
+                    item["record"].asString().unwrapOr("Sin record");
+
+                auto label = makeLabel(
+                    level + " - " + record,
+                    "chatFont.fnt",
+                    0.48f,
+                    WHITE
+                );
+                label->setAnchorPoint({0, 0.5f});
+                label->setPosition({20, y});
+                content->addChild(label);
+
+                y -= 30;
+            }
+        }
+
+        y -= 10;
+
+        auto verifiedTitle = makeLabel(
+            "NIVELES VERIFICADOS",
+            "goldFont.fnt",
+            0.55f,
+            LIGHT_GOLD
+        );
+        verifiedTitle->setAnchorPoint({0, 0.5f});
+        verifiedTitle->setPosition({15, y});
+        content->addChild(verifiedTitle);
+
+        y -= 30;
+
+        if (player.verified.isArray()) {
+            for (auto const& item : player.verified) {
+                std::string level =
+                    item.asString().unwrapOr("Desconocido");
+
+                auto label = makeLabel(
+                    level,
+                    "chatFont.fnt",
+                    0.48f,
+                    CYAN
+                );
+                label->setAnchorPoint({0, 0.5f});
+                label->setPosition({20, y});
+                content->addChild(label);
+
+                y -= 30;
+            }
+        }
+
+        auto backLabel = makeLabel(
+            "VOLVER",
+            "goldFont.fnt",
+            0.65f,
+            LIGHT_GOLD
+        );
+
+        auto backBtn = CCMenuItemLabel::create(
+            backLabel, this,
+            menu_selector(WeonListLayer::onBack)
+        );
+
+        m_backMenu = CCMenu::createWithItem(backBtn);
+        m_backMenu->setPosition({
+            win.width / 2,
+            35
+        });
+
+        addChild(m_backMenu, 10);
+    }
+
+    void onClose(CCObject*) {
+        removeFromParentAndCleanup(true);
+    }
+
+    void onLevels(CCObject*) {
+        showLevels();
+    }
+
+    void onLeaderboard(CCObject*) {
+        showLeaderboard();
+    }
+
+    void onViewProfile(CCObject* sender) {
+        auto item = static_cast<CCMenuItem*>(sender);
+        showPlayerProfile(item->getTag());
+    }
+
+    void onBack(CCObject*) {
+        showLeaderboard();
+    }
+
+    void onCopyID(CCObject* sender) {
+        auto item = static_cast<CCMenuItem*>(sender);
+        int id = item->getTag();
+
+        utils::clipboard::write(std::to_string(id));
+
+        Notification::create(
+            "ID copiado al portapapeles",
+            NotificationIcon::Success,
+            1.5f
+        )->show();
+    }
+
+public:
+    static WeonListLayer* create() {
+        auto ret = new WeonListLayer();
+
+        if (ret && ret->init()) {
+            ret->autorelease();
+            return ret;
+        }
+
+        CC_SAFE_DELETE(ret);
+        return nullptr;
+    }
+};
+
+class WeonListMenuLayer : public CCNode {
+public:
+    void onWeonList(CCObject*) {
+        auto layer = WeonListLayer::create();
+
+        if (layer) {
+            auto scene = CCScene::create();
+            scene->addChild(layer);
+            CCDirector::sharedDirector()->pushScene(
+                CCTransitionFade::create(0.3f, scene)
+            );
+        }
+    }
+};
+
+class $modify(WeonListMenuLayer, MenuLayer) {
+    bool init() {
+        if (!MenuLayer::init()) return false;
+
+        auto sprite = CCSprite::create(
+            "WL-Boton-lmao.png"
+        );
+
+        if (!sprite) return true;
+
+        sprite->setScale(2.0f);
+
+        auto button = CCMenuItemSpriteExtra::create(
+            sprite, this,
+            menu_selector(WeonListMenuLayer::onWeonList)
+        );
+
+        auto menu = this->getChildByID("bottom-menu");
+
+        if (menu) {
+            menu->addChild(button);
+            menu->updateLayout();
+        }
+
+        return true;
+    }
+};o copyLabel = makeLabel(
                 "COPIAR ID", "goldFont.fnt", 0.48f, GOLD
             );
 
