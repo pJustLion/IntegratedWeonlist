@@ -1,3 +1,4 @@
+
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/ui/ScrollLayer.hpp>
@@ -30,6 +31,7 @@ protected:
     CCMenu* m_backMenu = nullptr;
 
     int m_currentTab = 0;
+    bool m_isClosing = false;
 
     const ccColor3B GOLD = {235, 190, 75};
     const ccColor3B LIGHT_GOLD = {255, 220, 125};
@@ -39,6 +41,11 @@ protected:
 
     bool init() {
         if (!CCLayer::init()) return false;
+
+        // Entrada suave.
+        setCascadeOpacityEnabled(true);
+        setOpacity(0);
+        setPositionY(-22);
 
         auto win = CCDirector::sharedDirector()->getWinSize();
 
@@ -92,12 +99,20 @@ protected:
             closeMenu->setPosition({
                 win.width - 25, win.height - 25
             });
-            addChild(closeMenu, 20);
+            addChild(closeMenu, 100);
         }
 
         loadPlayers();
         createTabs();
         showLevels();
+
+        runAction(CCSpawn::create(
+            CCEaseSineOut::create(
+                CCMoveTo::create(0.45f, {0, 0})
+            ),
+            CCFadeTo::create(0.45f, 255),
+            nullptr
+        ));
 
         return true;
     }
@@ -164,6 +179,32 @@ protected:
         );
         accent->setPosition({x, y});
         parent->addChild(accent, 2);
+    }
+
+    std::string removeAccents(std::string value) {
+        const std::pair<std::string, std::string> replacements[] = {
+            {"á", "a"}, {"é", "e"}, {"í", "i"}, {"ó", "o"}, {"ú", "u"},
+            {"Á", "A"}, {"É", "E"}, {"Í", "I"}, {"Ó", "O"}, {"Ú", "U"},
+            {"ü", "u"}, {"Ü", "U"}, {"ñ", "n"}, {"Ñ", "N"}
+        };
+
+        for (auto const& replacement : replacements) {
+            size_t position = 0;
+
+            while ((position = value.find(
+                replacement.first, position
+            )) != std::string::npos) {
+                value.replace(
+                    position,
+                    replacement.first.size(),
+                    replacement.second
+                );
+
+                position += replacement.second.size();
+            }
+        }
+
+        return value;
     }
 
     CCLabelBMFont* makeLabel(
@@ -320,7 +361,6 @@ protected:
                 0.65f,
                 rankColor
             );
-
             rankLabel->setAnchorPoint({0, 0.5f});
             rankLabel->setPosition({12, cardHeight / 2});
             card->addChild(rankLabel);
@@ -331,7 +371,6 @@ protected:
                 0.48f,
                 WHITE
             );
-
             nameLabel->setAnchorPoint({0, 0.5f});
             nameLabel->setPosition({65, 48});
             card->addChild(nameLabel);
@@ -342,7 +381,6 @@ protected:
                 0.48f,
                 GRAY
             );
-
             creatorLabel->setAnchorPoint({0, 0.5f});
             creatorLabel->setPosition({65, 27});
             card->addChild(creatorLabel);
@@ -353,7 +391,6 @@ protected:
                 0.42f,
                 CYAN
             );
-
             verifierLabel->setAnchorPoint({0, 0.5f});
             verifierLabel->setPosition({65, 10});
             card->addChild(verifierLabel);
@@ -364,7 +401,6 @@ protected:
                 0.43f,
                 GRAY
             );
-
             idLabel->setAnchorPoint({1, 0.5f});
             idLabel->setPosition({
                 card->getContentSize().width - 12,
@@ -452,7 +488,6 @@ protected:
                 0.65f,
                 rankColor
             );
-
             rankLabel->setAnchorPoint({0, 0.5f});
             rankLabel->setPosition({12, cardHeight / 2});
             card->addChild(rankLabel);
@@ -463,7 +498,6 @@ protected:
                 0.52f,
                 WHITE
             );
-
             nameLabel->setAnchorPoint({0, 0.5f});
             nameLabel->setPosition({65, 42});
             card->addChild(nameLabel);
@@ -474,7 +508,6 @@ protected:
                 0.5f,
                 GOLD
             );
-
             pointsLabel->setAnchorPoint({0, 0.5f});
             pointsLabel->setPosition({65, 18});
             card->addChild(pointsLabel);
@@ -537,7 +570,7 @@ protected:
             ? static_cast<int>(player.verified.size()) : 0;
 
         float contentHeight =
-            190 + completedCount * 30 + verifiedCount * 30;
+            270 + completedCount * 30 + verifiedCount * 30;
 
         auto content = scroll->m_contentLayer;
         content->setContentSize({width, contentHeight});
@@ -548,7 +581,6 @@ protected:
             0.7f,
             LIGHT_GOLD
         );
-
         profileTitle->setPosition({
             width / 2,
             contentHeight - 25
@@ -561,7 +593,6 @@ protected:
             0.65f,
             GOLD
         );
-
         rankLabel->setPosition({
             width / 2,
             contentHeight - 60
@@ -574,7 +605,6 @@ protected:
             0.75f,
             WHITE
         );
-
         nameLabel->setPosition({
             width / 2,
             contentHeight - 95
@@ -582,12 +612,11 @@ protected:
         content->addChild(nameLabel);
 
         auto countryLabel = makeLabel(
-            "Pais: " + player.country,
+            "Pais: " + removeAccents(player.country),
             "chatFont.fnt",
             0.55f,
             GRAY
         );
-
         countryLabel->setPosition({
             width / 2,
             contentHeight - 125
@@ -600,7 +629,6 @@ protected:
             0.58f,
             GOLD
         );
-
         pointsLabel->setPosition({
             width / 2,
             contentHeight - 155
@@ -615,7 +643,6 @@ protected:
             0.55f,
             LIGHT_GOLD
         );
-
         completedTitle->setAnchorPoint({0, 0.5f});
         completedTitle->setPosition({15, y});
         content->addChild(completedTitle);
@@ -636,7 +663,6 @@ protected:
                     0.48f,
                     WHITE
                 );
-
                 label->setAnchorPoint({0, 0.5f});
                 label->setPosition({20, y});
                 content->addChild(label);
@@ -653,7 +679,6 @@ protected:
             0.55f,
             LIGHT_GOLD
         );
-
         verifiedTitle->setAnchorPoint({0, 0.5f});
         verifiedTitle->setPosition({15, y});
         content->addChild(verifiedTitle);
@@ -671,7 +696,6 @@ protected:
                     0.48f,
                     CYAN
                 );
-
                 label->setAnchorPoint({0, 0.5f});
                 label->setPosition({20, y});
                 content->addChild(label);
@@ -701,8 +725,28 @@ protected:
         addChild(m_backMenu, 10);
     }
 
+    void finishClose() {
+        CCDirector::sharedDirector()->popScene();
+    }
+
     void onClose(CCObject*) {
-        removeFromParentAndCleanup(true);
+        if (m_isClosing) return;
+        m_isClosing = true;
+
+        runAction(CCSequence::create(
+            CCSpawn::create(
+                CCEaseSineIn::create(
+                    CCMoveTo::create(0.25f, {0, -22})
+                ),
+                CCFadeTo::create(0.25f, 0),
+                nullptr
+            ),
+            CCCallFunc::create(
+                this,
+                callfunc_selector(WeonListLayer::finishClose)
+            ),
+            nullptr
+        ));
     }
 
     void onLevels(CCObject*) {
@@ -749,23 +793,27 @@ public:
     }
 };
 
-class $modify(WeonListMenuLayer, MenuLayer) {
+class WeonListMenuLayer : public CCNode {
+public:
     void onWeonList(CCObject*) {
         auto layer = WeonListLayer::create();
-        if (!layer) return;
 
-        auto scene = CCScene::create();
-        scene->addChild(layer);
-
-        CCDirector::sharedDirector()->pushScene(
-            CCTransitionFade::create(0.3f, scene)
-        );
+        if (layer) {
+            auto scene = CCScene::create();
+            scene->addChild(layer);
+            CCDirector::sharedDirector()->pushScene(scene);
+        }
     }
+};
 
+class $modify(WeonListMenuLayer, MenuLayer) {
     bool init() {
         if (!MenuLayer::init()) return false;
 
-        auto sprite = CCSprite::create("WL-Boton-lmao.png"_spr);
+        auto sprite = CCSprite::create(
+            "WL-Boton-lmao.png"
+        );
+
         if (!sprite) return true;
 
         sprite->setScale(2.0f);
