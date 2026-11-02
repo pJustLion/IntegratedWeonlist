@@ -42,9 +42,6 @@ protected:
     bool init() {
         if (!CCLayer::init()) return false;
 
-        // Entrada suave.
-        setCascadeOpacityEnabled(true);
-        setOpacity(0);
         setPositionY(-22);
 
         auto win = CCDirector::sharedDirector()->getWinSize();
@@ -106,12 +103,8 @@ protected:
         createTabs();
         showLevels();
 
-        runAction(CCSpawn::create(
-            CCEaseSineOut::create(
-                CCMoveTo::create(0.45f, {0, 0})
-            ),
-            CCFadeTo::create(0.45f, 255),
-            nullptr
+        runAction(CCEaseSineOut::create(
+            CCMoveTo::create(0.45f, {0, 0})
         ));
 
         return true;
@@ -734,12 +727,8 @@ protected:
         m_isClosing = true;
 
         runAction(CCSequence::create(
-            CCSpawn::create(
-                CCEaseSineIn::create(
-                    CCMoveTo::create(0.25f, {0, -22})
-                ),
-                CCFadeTo::create(0.25f, 0),
-                nullptr
+            CCEaseSineIn::create(
+                CCMoveTo::create(0.25f, {0, -22})
             ),
             CCCallFunc::create(
                 this,
@@ -793,20 +782,20 @@ public:
     }
 };
 
-class WeonListMenuLayer : public CCNode {
-public:
+class $modify(WeonListMenuLayer, MenuLayer) {
     void onWeonList(CCObject*) {
         auto layer = WeonListLayer::create();
 
         if (layer) {
             auto scene = CCScene::create();
             scene->addChild(layer);
-            CCDirector::sharedDirector()->pushScene(scene);
+
+            CCDirector::sharedDirector()->pushScene(
+                CCTransitionFade::create(0.45f, scene)
+            );
         }
     }
-};
 
-class $modify(WeonListMenuLayer, MenuLayer) {
     bool init() {
         if (!MenuLayer::init()) return false;
 
