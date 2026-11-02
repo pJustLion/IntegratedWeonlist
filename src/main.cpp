@@ -749,8 +749,7 @@ public:
     }
 };
 
-class WeonListMenuLayer : public CCNode {
-public:
+class $modify(WeonListMenuLayer, MenuLayer) {
     void onWeonList(CCObject*) {
         auto layer = WeonListLayer::create();
 
@@ -762,9 +761,7 @@ public:
             );
         }
     }
-};
 
-class $modify(WeonListMenuLayer, MenuLayer) {
     bool init() {
         if (!MenuLayer::init()) return false;
 
