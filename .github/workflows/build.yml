@@ -20,6 +20,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install LLVM 20
+        if: matrix.target == 'Win64'
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 20
+          sudo apt-get install -y clang-20 lld-20 llvm-20
+
+          mkdir -p "$RUNNER_TEMP/llvm20-bin"
+          ln -sf /usr/bin/clang-20 "$RUNNER_TEMP/llvm20-bin/clang"
+          ln -sf /usr/bin/clang++-20 "$RUNNER_TEMP/llvm20-bin/clang++"
+
+          echo "$RUNNER_TEMP/llvm20-bin" >> "$GITHUB_PATH"
+          echo "CC=clang-20" >> "$GITHUB_ENV"
+          echo "CXX=clang++-20" >> "$GITHUB_ENV"
+
       - name: Build Geode mod
         uses: geode-sdk/build-geode-mod@main
         with:
