@@ -172,6 +172,7 @@ protected:
             {"Á", "A"}, {"É", "E"}, {"Í", "I"}, {"Ó", "O"}, {"Ú", "U"},
             {"ü", "u"}, {"Ü", "U"}, {"ñ", "n"}, {"Ñ", "N"}
         };
+
         for (auto const& replacement : replacements) {
             size_t position = 0;
             while ((position = value.find(replacement.first, position)) != std::string::npos) {
@@ -282,7 +283,11 @@ protected:
 
         if (!scroll) return;
 
-        scroll->setPosition({25, 30});
+        scroll->setPosition({
+            win.width / 2,
+            30 + scrollHeight / 2
+        });
+
         addChild(scroll, 1);
         m_content = scroll;
 
@@ -296,18 +301,24 @@ protected:
             win.width - 50,
             contentHeight
         });
-        // Start at the top of the list instead of showing its last entries.
-        content->setPositionY(std::min(0.f, scrollHeight - contentHeight));
+
+        content->setPositionY(
+            std::min(0.f, scrollHeight - contentHeight)
+        );
 
         int index = 0;
 
         for (auto const& level : levels) {
             int rank = level["rank"].asInt().unwrapOr(0);
+
             std::string name =
                 level["name"].asString().unwrapOr("Sin nombre");
+
             std::string creator =
                 level["creator"].asString().unwrapOr("Desconocido");
+
             int id = level["id"].asInt().unwrapOr(0);
+
             std::string verifier =
                 level["verifier"].asString().unwrapOr("Desconocido");
 
@@ -406,7 +417,6 @@ protected:
             index++;
         }
     }
-
     void showLeaderboard() {
         m_currentTab = 1;
         clearContent();
@@ -421,12 +431,18 @@ protected:
 
         if (!scroll) return;
 
-        scroll->setPosition({25, 30});
+        // Centrar el ScrollLayer y mantener 30 puntos de margen inferior.
+        scroll->setPosition({
+            win.width / 2,
+            30 + scrollHeight / 2
+        });
+
         addChild(scroll, 1);
         m_content = scroll;
 
         float cardHeight = 56;
         float gap = 7;
+
         float contentHeight =
             m_players.size() * (cardHeight + gap) + 10;
 
@@ -436,7 +452,6 @@ protected:
             contentHeight
         });
 
-        // Let Geode calculate the correct scroll bounds from the full content height.
         scroll->scrollToTop();
 
         int index = 0;
@@ -453,6 +468,7 @@ protected:
             content->addChild(card);
 
             ccColor3B rankColor = WHITE;
+
             if (player.rank == 1) rankColor = LIGHT_GOLD;
             else if (player.rank == 2) rankColor = {190, 195, 205};
             else if (player.rank == 3) rankColor = {190, 125, 75};
@@ -463,6 +479,7 @@ protected:
                 0.65f,
                 rankColor
             );
+
             rankLabel->setAnchorPoint({0, 0.5f});
             rankLabel->setPosition({12, cardHeight / 2});
             card->addChild(rankLabel);
@@ -473,6 +490,7 @@ protected:
                 0.52f,
                 WHITE
             );
+
             nameLabel->setAnchorPoint({0, 0.5f});
             nameLabel->setPosition({65, 35});
             card->addChild(nameLabel);
@@ -483,6 +501,7 @@ protected:
                 0.46f,
                 GOLD
             );
+
             pointsLabel->setAnchorPoint({0, 0.5f});
             pointsLabel->setPosition({65, 15});
             card->addChild(pointsLabel);
@@ -525,6 +544,7 @@ protected:
         auto const& player = m_players[playerIndex];
 
         float scrollHeight = win.height - 190;
+
         auto scroll = ScrollLayer::create({
             win.width - 50,
             scrollHeight
@@ -532,7 +552,12 @@ protected:
 
         if (!scroll) return;
 
-        scroll->setPosition({25, 65});
+        // Centrar el ScrollLayer y mantener 65 puntos de margen inferior.
+        scroll->setPosition({
+            win.width / 2,
+            65 + scrollHeight / 2
+        });
+
         addChild(scroll, 1);
         m_content = scroll;
 
@@ -545,13 +570,19 @@ protected:
         int verifiedCount = player.verified.isArray()
             ? static_cast<int>(player.verified.size()) : 0;
 
-        // Reserve space for the profile header, section titles and entries.
         float contentHeight =
             270 + completedCount * 30 + verifiedCount * 30;
 
         auto content = scroll->m_contentLayer;
-        content->setContentSize({width, contentHeight});
-        content->setPositionY(std::min(0.f, scrollHeight - contentHeight));
+
+        content->setContentSize({
+            width,
+            contentHeight
+        });
+
+        content->setPositionY(
+            std::min(0.f, scrollHeight - contentHeight)
+        );
 
         auto profileTitle = makeLabel(
             "PERFIL DEL JUGADOR",
@@ -559,10 +590,12 @@ protected:
             0.7f,
             LIGHT_GOLD
         );
+
         profileTitle->setPosition({
             width / 2,
             contentHeight - 25
         });
+
         content->addChild(profileTitle);
 
         auto rankLabel = makeLabel(
@@ -571,10 +604,12 @@ protected:
             0.65f,
             GOLD
         );
+
         rankLabel->setPosition({
             width / 2,
             contentHeight - 60
         });
+
         content->addChild(rankLabel);
 
         auto nameLabel = makeLabel(
@@ -583,10 +618,12 @@ protected:
             0.75f,
             WHITE
         );
+
         nameLabel->setPosition({
             width / 2,
             contentHeight - 95
         });
+
         content->addChild(nameLabel);
 
         auto countryLabel = makeLabel(
@@ -595,10 +632,12 @@ protected:
             0.55f,
             GRAY
         );
+
         countryLabel->setPosition({
             width / 2,
             contentHeight - 125
         });
+
         content->addChild(countryLabel);
 
         auto pointsLabel = makeLabel(
@@ -607,10 +646,12 @@ protected:
             0.58f,
             GOLD
         );
+
         pointsLabel->setPosition({
             width / 2,
             contentHeight - 155
         });
+
         content->addChild(pointsLabel);
 
         y = contentHeight - 195;
@@ -621,6 +662,7 @@ protected:
             0.55f,
             LIGHT_GOLD
         );
+
         completedTitle->setAnchorPoint({0, 0.5f});
         completedTitle->setPosition({15, y});
         content->addChild(completedTitle);
@@ -641,6 +683,7 @@ protected:
                     0.48f,
                     WHITE
                 );
+
                 label->setAnchorPoint({0, 0.5f});
                 label->setPosition({20, y});
                 content->addChild(label);
@@ -657,6 +700,7 @@ protected:
             0.55f,
             LIGHT_GOLD
         );
+
         verifiedTitle->setAnchorPoint({0, 0.5f});
         verifiedTitle->setPosition({15, y});
         content->addChild(verifiedTitle);
@@ -674,6 +718,7 @@ protected:
                     0.48f,
                     CYAN
                 );
+
                 label->setAnchorPoint({0, 0.5f});
                 label->setPosition({20, y});
                 content->addChild(label);
@@ -695,6 +740,7 @@ protected:
         );
 
         m_backMenu = CCMenu::createWithItem(backBtn);
+
         m_backMenu->setPosition({
             win.width / 2,
             35
@@ -702,7 +748,6 @@ protected:
 
         addChild(m_backMenu, 10);
     }
-
     void onClose(CCObject*) {
         CCDirector::sharedDirector()->popScene();
     }
@@ -758,6 +803,7 @@ class $modify(WeonListMenuLayer, MenuLayer) {
         if (layer) {
             auto scene = CCScene::create();
             scene->addChild(layer);
+
             CCDirector::sharedDirector()->pushScene(
                 CCTransitionFade::create(0.3f, scene)
             );
@@ -769,24 +815,32 @@ class $modify(WeonListMenuLayer, MenuLayer) {
 
         // Load the mod sprite through Geode's resource system.
         auto sprite = CCSprite::create("WL-Boton-lmao.png"_spr);
+
         if (!sprite) {
-            log::error("No se pudo cargar WL-Boton-lmao.png desde los recursos del mod");
+            log::error(
+                "No se pudo cargar WL-Boton-lmao.png desde los recursos del mod"
+            );
             return true;
         }
 
-        // The source image is 1280x1280; enlarge it for a more visible menu button.
         sprite->setScale(0.12f);
 
         auto button = CCMenuItemSpriteExtra::create(
-            sprite, this,
+            sprite,
+            this,
             menu_selector(WeonListMenuLayer::onWeonList)
         );
 
-        // Keep the button independent from the main menu's option layout.
         auto win = CCDirector::sharedDirector()->getWinSize();
+
         auto menu = CCMenu::createWithItem(button);
         menu->setID("weonlist-corner-button");
-        menu->setPosition({win.width - 38.f, win.height - 38.f});
+
+        menu->setPosition({
+            win.width - 38.f,
+            win.height - 38.f
+        });
+
         this->addChild(menu, 100);
 
         return true;
