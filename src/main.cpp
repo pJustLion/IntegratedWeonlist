@@ -1,3 +1,4 @@
+
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 #include <Geode/ui/ScrollLayer.hpp>
@@ -302,10 +303,6 @@ protected:
             m_players.push_back(player);
         }
 
-        // Ordenar por puntos.
-        // stable_sort conserva el orden original cuando
-        // dos jugadores tienen la misma cantidad de puntos.
-
         std::stable_sort(
             m_players.begin(),
             m_players.end(),
@@ -541,12 +538,13 @@ protected:
         auto win = CCDirector::sharedDirector()->getWinSize();
 
         float scrollHeight = win.height - 155.f;
-        float gap = 7.f;
         float cardHeight = 56.f;
+        float gap = 7.f;
         float cardWidth = win.width - 70.f;
+        float scrollWidth = win.width - 50.f;
 
         auto scroll = ScrollLayer::create({
-            win.width - 50.f,
+            scrollWidth,
             scrollHeight
         });
 
@@ -562,11 +560,13 @@ protected:
         m_content = scroll;
 
         auto content = scroll->m_contentLayer;
-        content->setLayout(
-            ScrollLayer::createDefaultListLayout(gap)
-        );
 
         if (m_players.empty()) {
+            content->setContentSize({
+                scrollWidth,
+                scrollHeight
+            });
+
             auto emptyLabel = makeLabel(
                 "NO HAY JUGADORES DISPONIBLES",
                 "goldFont.fnt",
@@ -576,20 +576,31 @@ protected:
 
             if (emptyLabel) {
                 emptyLabel->setPosition({
-                    (win.width - 50.f) / 2.f,
+                    scrollWidth / 2.f,
                     scrollHeight / 2.f
                 });
                 content->addChild(emptyLabel);
             }
 
-            content->updateLayout();
             return;
         }
 
-        for (int index = 0;
-             index < static_cast<int>(m_players.size());
-             index++) {
+        int total = static_cast<int>(m_players.size());
 
+        float contentHeight =
+            total * (cardHeight + gap) + 10.f;
+
+        // Same manual scroll sizing/positioning used by showLevels().
+        content->setContentSize({
+            scrollWidth,
+            contentHeight
+        });
+
+        content->setPositionY(
+            std::min(0.f, scrollHeight - contentHeight)
+        );
+
+        for (int index = 0; index < total; index++) {
             auto const& player = m_players[index];
             int rank = index + 1;
 
@@ -602,6 +613,12 @@ protected:
             if (!card)
                 continue;
 
+            float y =
+                contentHeight - (index + 1) * (cardHeight + gap);
+
+            card->setPosition({10.f, y});
+            content->addChild(card);
+
             auto rankLabel = makeLabel(
                 "#" + std::to_string(rank),
                 "goldFont.fnt",
@@ -610,8 +627,11 @@ protected:
             );
 
             if (rankLabel) {
-                rankLabel->setAnchorPoint({0, 0.5f});
-                rankLabel->setPosition({12.f, cardHeight / 2.f});
+                rankLabel->setAnchorPoint({0.f, 0.5f});
+                rankLabel->setPosition({
+                    12.f,
+                    cardHeight / 2.f
+                });
                 card->addChild(rankLabel);
             }
 
@@ -623,7 +643,7 @@ protected:
             );
 
             if (nameLabel) {
-                nameLabel->setAnchorPoint({0, 0.5f});
+                nameLabel->setAnchorPoint({0.f, 0.5f});
                 nameLabel->setPosition({65.f, 35.f});
                 card->addChild(nameLabel);
             }
@@ -636,7 +656,7 @@ protected:
             );
 
             if (pointsLabel) {
-                pointsLabel->setAnchorPoint({0, 0.5f});
+                pointsLabel->setAnchorPoint({0.f, 0.5f});
                 pointsLabel->setPosition({65.f, 15.f});
                 card->addChild(pointsLabel);
             }
@@ -665,11 +685,8 @@ protected:
 
                 card->addChild(profileMenu, 5);
             }
-
-            content->addChild(card);
         }
 
-        content->updateLayout();
         scroll->scrollToTop();
 
         log::info(
