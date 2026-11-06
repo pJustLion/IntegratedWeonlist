@@ -1,3 +1,4 @@
+
 {
   "players": [
     {
@@ -18,9 +19,7 @@
       "points": 1000,
       "rank": 2,
       "completed": [],
-      "verified": [
-        "Log09"
-      ]
+      "verified": ["Log09"]
     },
     {
       "name": "Stacmin",
@@ -28,14 +27,8 @@
       "points": 925,
       "rank": 3,
       "completed": [
-        {
-          "level": "Furnace Demoled",
-          "record": "100%"
-        },
-        {
-          "level": "Beauty Of Chaos",
-          "record": "100%"
-        }
+        {"level": "Furnace Demoled", "record": "100%"},
+        {"level": "Beauty Of Chaos", "record": "100%"}
       ],
       "verified": []
     },
@@ -45,10 +38,7 @@
       "points": 825,
       "rank": 4,
       "completed": [
-        {
-          "level": "Furnace Demoled",
-          "record": "100%"
-        }
+        {"level": "Furnace Demoled", "record": "100%"}
       ],
       "verified": []
     },
@@ -58,9 +48,7 @@
       "points": 681,
       "rank": 5,
       "completed": [],
-      "verified": [
-        "Etuieukalbakorp"
-      ]
+      "verified": ["Etuieukalbakorp"]
     },
     {
       "name": "CubeMat14",
@@ -68,14 +56,9 @@
       "points": 560,
       "rank": 6,
       "completed": [
-        {
-          "level": "MX NEVER CLEAR",
-          "record": "100%"
-        }
+        {"level": "MX NEVER CLEAR", "record": "100%"}
       ],
-      "verified": [
-        "Wild Side"
-      ]
+      "verified": ["Wild Side"]
     },
     {
       "name": "Escuad",
@@ -90,22 +73,14 @@
     },
     {
       "name": "matheo",
-      "country": "Colombia",
+      "country": "Ecuador",
       "points": 482,
       "rank": 8,
       "completed": [
-        {
-          "level": "For the first Time",
-          "record": "100%"
-        },
-        {
-          "level": "Beauty Of Chaos",
-          "record": "100%"
-        }
+        {"level": "For the first time", "record": "100%"},
+        {"level": "Beauty Of Chaos", "record": "100%"}
       ],
-      "verified": [
-        "Weon Adventures"
-      ]
+      "verified": ["Weon Adventures"]
     },
     {
       "name": "Smosheey",
@@ -113,18 +88,9 @@
       "points": 398,
       "rank": 9,
       "completed": [
-        {
-          "level": "Wild Side",
-          "record": "100%"
-        },
-        {
-          "level": "For the first Time",
-          "record": "100%"
-        },
-        {
-          "level": "Beauty Of Chaos",
-          "record": "100%"
-        }
+        {"level": "Wild Side", "record": "100%"},
+        {"level": "For the first time", "record": "100%"},
+        {"level": "Beauty Of Chaos", "record": "100%"}
       ],
       "verified": []
     },
@@ -134,20 +100,149 @@
       "points": 398,
       "rank": 10,
       "completed": [
-        {
-          "level": "Wild Side",
-          "record": "100%"
-        },
-        {
-          "level": "For the first Time",
-          "record": "100%"
-        },
-        {
-          "level": "Beauty Of Chaos",
-          "record": "100%"
-        }
+        {"level": "Wild Side", "record": "100%"},
+        {"level": "For the first time", "record": "100%"},
+        {"level": "Beauty Of Chaos", "record": "100%"}
       ],
       "verified": []
+    },
+    {
+      "name": "CATNOPSO",
+      "country": "Colombia",
+      "points": 398,
+      "rank": 11,
+      "completed": [
+        {"level": "Wild Side", "record": "100%"},
+        {"level": "For the first time", "record": "100%"},
+        {"level": "Beauty Of Chaos", "record": "100%"}
+      ],
+      "verified": []
+    },
+    {
+      "name": "Nosoyunmx",
+      "country": "México",
+      "points": 383,
+      "rank": 12,
+      "completed": [],
+      "verified": ["MX NEVER CLEAR"]
+    },
+    {
+      "name": "Jerome34",
+      "country": "Colombia",
+      "points": 383,
+      "rank": 13,
+      "completed": [
+        {"level": "MX NEVER CLEAR", "record": "100%"}
+      ],
+      "verified": []
+    },
+    {
+      "name": "Huka",
+      "country": "Chile",
+      "points": 298,
+      "rank": 14,
+      "completed": [
+        {"level": "Wild Side", "record": "100%"},
+        {"level": "For the first time", "record": "100%"}
+      ],
+      "verified": []
+    },
+    {
+      "name": "Capnosis",
+      "country": "Chile",
+      "points": 298,
+      "rank": 15,
+      "completed": [
+        {"level": "Wild Side", "record": "100%"},
+        {"level": "For the first time", "record": "100%"}
+      ],
+      "verified": []
+    },
+    {
+      "name": "FarmeadorDeAura",
+      "country": "Colombia",
+      "points": 298,
+      "rank": 16,
+      "completed": [
+        {"level": "Wild Side", "record": "100%"},
+        {"level": "For the first time", "record": "100%"}
+      ],
+      "verified": []
+    },
+    {
+      "name": "Naxos12",
+      "country": "Argentina",
+      "points": 221,
+      "rank": 17,
+      "completed": [
+        {"level": "Beauty Of Chaos", "record": "100%"}
+      ],
+      "verified": ["For the first time"]
+    },
+    {
+      "name": "ItsJaroo",
+      "country": "Guatemala",
+      "points": 221,
+      "rank": 18,
+      "completed": [
+        {"level": "For the first time", "record": "100%"},
+        {"level": "Beauty Of Chaos", "record": "100%"}
+      ],
+      "verified": []
+    },
+    {
+      "name": "DantePug",
+      "country": "México",
+      "points": 177,
+      "rank": 19,
+      "completed": [
+        {"level": "Wild Side", "record": "100%"}
+      ],
+      "verified": []
+    },
+    {
+      "name": "pJustLion",
+      "country": "Argentina",
+      "points": 177,
+      "rank": 20,
+      "completed": [
+        {"level": "Wild Side", "record": "100%"}
+      ],
+      "verified": []
+    },
+    {
+      "name": "andreselnob",
+      "country": "Chile",
+      "points": 121,
+      "rank": 21,
+      "completed": [
+        {"level": "For the first time", "record": "100%"}
+      ],
+      "verified": []
+    },
+    {
+      "name": "Platanoski",
+      "country": "Unknown",
+      "points": 100,
+      "rank": 22,
+      "completed": [],
+      "verified": ["Beauty Of Chaos"]
+    },
+    {
+      "name": "RamiroGD",
+      "country": "Venezuela",
+      "points": 100,
+      "rank": 23,
+      "completed": [],
+      "verified": ["Beauty Of Chaos"]
+    },
+    {
+      "name": "Cereal",
+      "country": "México",
+      "points": 100,
+      "rank": 24,
+      "completed": [],
+      "verified": ["Beauty Of Chaos"]
     }
   ]
 }
