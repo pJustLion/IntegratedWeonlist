@@ -1,13 +1,14 @@
 {
   "geode": "5.11.2",
   "gd": {
-    "android": "2.2081"
+    "android": "2.2081",
+    "win": "2.2091"
   },
-  "id": "pjustlion.integratedweonlist.lol",
+  "id": "pjustlion.weonlist.lol",
   "name": "WeonList integrada",
   "version": "v1.0.0",
   "developer": "pJustLion",
-  "description": "porfin hay un put0 mod de la Weonlist integrada para GD xD",
+  "description": "porfin hay un put0 mod de la Weonlist integrada para GD xD, cada update se tarda, debido a que solo soy yo haciendo el mod",
   "dependencies": {
     "geode.node-ids": ">=v1.23.3"
   },
