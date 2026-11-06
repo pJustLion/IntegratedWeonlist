@@ -5,7 +5,7 @@ Integrated Weonlist integra la Weonlist A Geometry Dash!
 
 
   Que mrd agrega? ;
-• Un botoncito bien chill con diseño para entrar en la esquina de la pantalla
+• Un botoncito bien chill con design para entrar en la esquina de la pantalla
 
 
 • Una Lista De niveles! (actualizados manualmente)
