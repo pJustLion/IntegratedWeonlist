@@ -536,15 +536,17 @@ protected:
 
     void showLeaderboard() {
         m_currentTab = 1;
-
         clearContent();
 
         auto win = CCDirector::sharedDirector()->getWinSize();
 
-        float scrollHeight = win.height - 155;
+        float scrollHeight = win.height - 155.f;
+        float gap = 7.f;
+        float cardHeight = 56.f;
+        float cardWidth = win.width - 70.f;
 
         auto scroll = ScrollLayer::create({
-            win.width - 50,
+            win.width - 50.f,
             scrollHeight
         });
 
@@ -552,32 +554,17 @@ protected:
             return;
 
         scroll->setPosition({
-            win.width / 2,
-            30 + scrollHeight / 2
+            win.width / 2.f,
+            30.f + scrollHeight / 2.f
         });
 
         addChild(scroll, 1);
         m_content = scroll;
 
-        float cardHeight = 56.f;
-        float gap = 7.f;
-
-        float contentHeight =
-            static_cast<float>(m_players.size()) *
-            (cardHeight + gap) + 10.f;
-
         auto content = scroll->m_contentLayer;
-
-        content->setContentSize({
-            win.width - 50,
-            contentHeight
-        });
-
-        content->setPositionY(
-            std::min(0.f, scrollHeight - contentHeight)
+        content->setLayout(
+            ScrollLayer::createDefaultListLayout(gap)
         );
-
-        // Si no hay jugadores, mostrar un mensaje.
 
         if (m_players.empty()) {
             auto emptyLabel = makeLabel(
@@ -587,37 +574,33 @@ protected:
                 GRAY
             );
 
-            emptyLabel->setPosition({
-                (win.width - 50) / 2,
-                contentHeight / 2
-            });
+            if (emptyLabel) {
+                emptyLabel->setPosition({
+                    (win.width - 50.f) / 2.f,
+                    scrollHeight / 2.f
+                });
+                content->addChild(emptyLabel);
+            }
 
-            content->addChild(emptyLabel);
+            content->updateLayout();
             return;
         }
 
-        int index = 0;
+        for (int index = 0;
+             index < static_cast<int>(m_players.size());
+             index++) {
 
-        for (auto const& player : m_players) {
-
-            // El puesto se calcula según la posición
-            // actual de cada jugador.
-
+            auto const& player = m_players[index];
             int rank = index + 1;
 
             auto card = CCLayerColor::create(
                 {20, 20, 24, 255},
-                win.width - 70,
+                cardWidth,
                 cardHeight
             );
 
-            float y =
-                contentHeight - (index + 1) * (cardHeight + gap);
-
-            card->setPosition({10, y});
-            content->addChild(card);
-
-            // RANK
+            if (!card)
+                continue;
 
             auto rankLabel = makeLabel(
                 "#" + std::to_string(rank),
@@ -626,16 +609,11 @@ protected:
                 getRankColor(rank)
             );
 
-            rankLabel->setAnchorPoint({0, 0.5f});
-
-            rankLabel->setPosition({
-                12,
-                cardHeight / 2
-            });
-
-            card->addChild(rankLabel);
-
-            // PLAYER NAME
+            if (rankLabel) {
+                rankLabel->setAnchorPoint({0, 0.5f});
+                rankLabel->setPosition({12.f, cardHeight / 2.f});
+                card->addChild(rankLabel);
+            }
 
             auto nameLabel = makeLabel(
                 player.name,
@@ -644,12 +622,11 @@ protected:
                 WHITE
             );
 
-            nameLabel->setAnchorPoint({0, 0.5f});
-            nameLabel->setPosition({65, 35});
-
-            card->addChild(nameLabel);
-
-            // POINTS
+            if (nameLabel) {
+                nameLabel->setAnchorPoint({0, 0.5f});
+                nameLabel->setPosition({65.f, 35.f});
+                card->addChild(nameLabel);
+            }
 
             auto pointsLabel = makeLabel(
                 std::to_string(player.points) + " puntos",
@@ -658,12 +635,11 @@ protected:
                 GOLD
             );
 
-            pointsLabel->setAnchorPoint({0, 0.5f});
-            pointsLabel->setPosition({65, 15});
-
-            card->addChild(pointsLabel);
-
-            // PROFILE BUTTON
+            if (pointsLabel) {
+                pointsLabel->setAnchorPoint({0, 0.5f});
+                pointsLabel->setPosition({65.f, 15.f});
+                card->addChild(pointsLabel);
+            }
 
             auto profileLabel = makeLabel(
                 "VER PERFIL",
@@ -672,27 +648,34 @@ protected:
                 CYAN
             );
 
-            auto profileBtn = CCMenuItemLabel::create(
-                profileLabel,
-                this,
-                menu_selector(WeonListLayer::onViewProfile)
-            );
+            if (profileLabel) {
+                auto profileBtn = CCMenuItemLabel::create(
+                    profileLabel,
+                    this,
+                    menu_selector(WeonListLayer::onViewProfile)
+                );
 
-            profileBtn->setTag(index);
+                profileBtn->setTag(index);
 
-            auto profileMenu = CCMenu::createWithItem(
-                profileBtn
-            );
+                auto profileMenu = CCMenu::createWithItem(profileBtn);
+                profileMenu->setPosition({
+                    cardWidth - 58.f,
+                    cardHeight / 2.f
+                });
 
-            profileMenu->setPosition({
-                card->getContentSize().width - 58,
-                cardHeight / 2
-            });
+                card->addChild(profileMenu, 5);
+            }
 
-            card->addChild(profileMenu, 5);
-
-            index++;
+            content->addChild(card);
         }
+
+        content->updateLayout();
+        scroll->scrollToTop();
+
+        log::info(
+            "WeonList: {} tarjetas agregadas a la leaderboard",
+            m_players.size()
+        );
     }
 
     // ==========================================
