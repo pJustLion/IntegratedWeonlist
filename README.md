@@ -1,13 +1,10 @@
-<h2 align="center">
-  <span style="color: #00D9FF;"> Bienvenidos Al Mod Este q me dejaron hacer xdxdxd</span>
-</h2>
+Bienvenidos Al Mod Este q me dejaron hacer xdxdxd
 
 Integrated Weonlist integra la Weonlist A Geometry Dash! 
 (noo sabes q no)
 
-<h2 align="center">
-  <span style="color: #00D9FF;">Que mrd agrega?</span>
-</h2>
+
+  Que mrd agrega? ;
 • Un botoncito bien chill con diseño para entrar en la esquina de la pantalla
 
 
