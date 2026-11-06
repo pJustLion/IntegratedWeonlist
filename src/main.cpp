@@ -361,9 +361,10 @@ protected:
         if (!scroll)
             return;
 
+        // FIX: posicionar desde la esquina inferior izquierda.
         scroll->setPosition({
-            win.width / 2,
-            30 + scrollHeight / 2
+            25.f,
+            30.f
         });
 
         addChild(scroll, 1);
@@ -551,9 +552,10 @@ protected:
         if (!scroll)
             return;
 
+        // FIX: posicionar desde la esquina inferior izquierda.
         scroll->setPosition({
-            win.width / 2.f,
-            30.f + scrollHeight / 2.f
+            25.f,
+            30.f
         });
 
         addChild(scroll, 1);
@@ -590,7 +592,6 @@ protected:
         float contentHeight =
             total * (cardHeight + gap) + 10.f;
 
-        // Same manual scroll sizing/positioning used by showLevels().
         content->setContentSize({
             scrollWidth,
             contentHeight
@@ -725,9 +726,10 @@ protected:
         if (!scroll)
             return;
 
+        // FIX: conservar el margen inferior del perfil.
         scroll->setPosition({
-            win.width / 2,
-            65 + scrollHeight / 2
+            25.f,
+            65.f
         });
 
         addChild(scroll, 1);
