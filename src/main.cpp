@@ -435,7 +435,9 @@ protected:
             win.width - 50,
             contentHeight
         });
-        content->setPositionY(std::min(0.f, scrollHeight - contentHeight));
+
+        // Let Geode calculate the correct scroll bounds from the full content height.
+        scroll->scrollToTop();
 
         int index = 0;
 
